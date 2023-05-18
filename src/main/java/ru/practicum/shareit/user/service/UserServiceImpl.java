@@ -22,8 +22,8 @@ public class UserServiceImpl implements UserService {
         return repository.createUser(user);
     }
 
-    public User patchUser(User user) {
-        return repository.patchUser(user);
+    public User updateUser(User user) {
+        return repository.updateUser(user);
     }
 
     public User getUser(long id) {

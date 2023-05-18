@@ -13,9 +13,6 @@ import ru.practicum.shareit.user.validations.SecondaryUserValidation;
 import java.util.Collection;
 import java.util.stream.Collectors;
 
-/**
- * TODO Sprint add-controllers.
- */
 @RequiredArgsConstructor
 @RestController
 @RequestMapping(path = "/users")
@@ -41,7 +38,7 @@ public class UserController {
     public UserDto patchUser(@PathVariable("userId") long userId,
                              @Validated(SecondaryUserValidation.class) @RequestBody UserDto userDto) {
         User user = UserMapper.mapToUser(userId, userDto);
-        return UserMapper.mapToDto(userService.patchUser(user));
+        return UserMapper.mapToDto(userService.updateUser(user));
     }
 
     @GetMapping("/{userId}")

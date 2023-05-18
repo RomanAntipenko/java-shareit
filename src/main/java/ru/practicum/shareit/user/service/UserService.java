@@ -9,7 +9,7 @@ public interface UserService {
 
     Collection<User> getAllUsers();
 
-    User patchUser(User user);
+    User updateUser(User user);
 
     User getUser(long id);
 

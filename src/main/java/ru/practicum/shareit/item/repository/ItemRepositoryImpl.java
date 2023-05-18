@@ -2,7 +2,6 @@ package ru.practicum.shareit.item.repository;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 import ru.practicum.shareit.item.exceptions.ItemIdNotFoundException;
@@ -13,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
 @Repository
@@ -23,19 +23,19 @@ public class ItemRepositoryImpl implements ItemRepository {
     @Getter
     private final Map<Long, Item> itemMap;
 
-    @Setter
-    private long idGenerator;
+    @Getter
+    private final AtomicLong atomicId = new AtomicLong(0);
 
     @Override
     public Item createItem(Item item) {
-        idGenerator++;
-        item.setId(idGenerator);
-        itemMap.put(idGenerator, item);
+        atomicId.getAndIncrement();
+        item.setId(atomicId.longValue());
+        itemMap.put(atomicId.longValue(), item);
         return item;
     }
 
     @Override
-    public Item patchItem(Item item) {
+    public Item updateItem(Item item) {
         if (!itemMap.containsKey(item.getId())) {
             log.debug("itemId not found in patch method");
             throw new ItemIdNotFoundException(String.format("itemId: \"%s\" не найден", item.getId()));

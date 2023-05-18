@@ -7,7 +7,7 @@ import java.util.Collection;
 public interface ItemService {
     Item createItem(Item item);
 
-    Item patchItem(Item item);
+    Item updateItem(Item item);
 
     Collection<Item> getAllItemsByOwner(long userId);
 

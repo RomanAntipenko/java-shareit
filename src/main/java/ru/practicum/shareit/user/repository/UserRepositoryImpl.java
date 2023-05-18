@@ -2,7 +2,6 @@ package ru.practicum.shareit.user.repository;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 import ru.practicum.shareit.user.exceptions.EmailAlreadyExistsException;
@@ -12,6 +11,7 @@ import ru.practicum.shareit.user.model.User;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicLong;
 
 @Repository
 @RequiredArgsConstructor
@@ -21,8 +21,8 @@ public class UserRepositoryImpl implements UserRepository {
     @Getter
     private final Map<Long, User> userMap;
 
-    @Setter
-    private long idGenerator;
+    @Getter
+    private final AtomicLong atomicId = new AtomicLong(0);
 
     public Collection<User> getUsers() {
         return new ArrayList<>(userMap.values());
@@ -33,9 +33,9 @@ public class UserRepositoryImpl implements UserRepository {
             log.debug("Incorrect field 'email' in createUser method");
             throw new EmailAlreadyExistsException(String.format("Такой email: \"%s\" уже существует", user.getEmail()));
         }
-        idGenerator++;
-        user.setId(idGenerator);
-        userMap.put(idGenerator, user);
+        atomicId.getAndIncrement();
+        user.setId(atomicId.longValue());
+        userMap.put(atomicId.longValue(), user);
         return user;
     }
 
@@ -55,7 +55,7 @@ public class UserRepositoryImpl implements UserRepository {
         userMap.remove(id);
     }
 
-    public User patchUser(User user) {
+    public User updateUser(User user) {
         User userBeforePatch = userMap.get(user.getId());
         if (user.getEmail() != null) {
             if (userMap.values().stream().anyMatch(user1 -> !user1.getId().equals(user.getId())

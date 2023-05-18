@@ -29,9 +29,9 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public Item patchItem(Item item) {
+    public Item updateItem(Item item) {
         if (validateUserId(item.getUserId())) {
-            return itemRepository.patchItem(item);
+            return itemRepository.updateItem(item);
         }
         log.debug("User id not found in patchItem method");
         throw new UserIdNotFoundException(String.format("userId: \"%s\" не найден", item.getUserId()));
@@ -59,7 +59,7 @@ public class ItemServiceImpl implements ItemService {
         return itemRepository.getItemByItemId(itemId);
     }
 
-    public boolean validateUserId(long userId) {
+    private boolean validateUserId(long userId) {
         return userRepository.getUsers().stream()
                 .map(User::getId)
                 .anyMatch((id -> id.equals(userId)));

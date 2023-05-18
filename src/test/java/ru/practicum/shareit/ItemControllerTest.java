@@ -10,12 +10,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.practicum.shareit.item.controller.ItemController;
 import ru.practicum.shareit.item.dto.ItemDto;
-import ru.practicum.shareit.item.dto.ItemMapper;
-import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepositoryImpl;
 import ru.practicum.shareit.user.controller.UserController;
 import ru.practicum.shareit.user.dto.UserDto;
-import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepositoryImpl;
 import ru.practicum.shareit.user.service.UserService;
 
@@ -46,9 +43,9 @@ public class ItemControllerTest {
     @AfterEach
     void clearAll() {
         userRepository.getUserMap().clear();
-        userRepository.setIdGenerator(0);
+        userRepository.getAtomicId().set(0);
         itemRepository.getItemMap().clear();
-        itemRepository.setIdGenerator(0);
+        itemRepository.getAtomicId().set(0);
     }
 
     @SneakyThrows
@@ -73,7 +70,7 @@ public class ItemControllerTest {
                         .content(objectMapper.writeValueAsString(item)))
                 .andExpect(status().is(200))
                 .andExpect(content().json(objectMapper.writeValueAsString(ItemDto.builder()
-                                .id(1L)
+                        .id(1L)
                         .available(true)
                         .description("Описание")
                         .name("Товар")
@@ -142,14 +139,14 @@ public class ItemControllerTest {
                 .name("Товар")
                 .build();
         mockMvc.perform(post("/items")
-                        .contentType("application/json")
-                        .header("X-Sharer-User-Id", 1L)
-                        .content(objectMapper.writeValueAsString(item)));
-
-        mockMvc.perform(get("/items/1")
                 .contentType("application/json")
                 .header("X-Sharer-User-Id", 1L)
-                .content(objectMapper.writeValueAsString(item)))
+                .content(objectMapper.writeValueAsString(item)));
+
+        mockMvc.perform(get("/items/1")
+                        .contentType("application/json")
+                        .header("X-Sharer-User-Id", 1L)
+                        .content(objectMapper.writeValueAsString(item)))
                 .andExpect(status().is(200))
                 .andExpect(content().json(objectMapper.writeValueAsString(ItemDto.builder()
                         .id(1L)
@@ -185,9 +182,9 @@ public class ItemControllerTest {
                 .name("Товар который пропатчили")
                 .build();
         mockMvc.perform(patch("/items/1")
-                .contentType("application/json")
-                .header("X-Sharer-User-Id", 1L)
-                .content(objectMapper.writeValueAsString(patchItem)))
+                        .contentType("application/json")
+                        .header("X-Sharer-User-Id", 1L)
+                        .content(objectMapper.writeValueAsString(patchItem)))
                 .andExpect(status().is(200))
                 .andExpect(content().json(objectMapper.writeValueAsString(ItemDto.builder()
                         .id(1L)

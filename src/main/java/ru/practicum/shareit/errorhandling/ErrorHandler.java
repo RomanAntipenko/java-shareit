@@ -15,7 +15,7 @@ import ru.practicum.shareit.user.exceptions.UserIdNotFoundException;
 public class ErrorHandler {
     @ExceptionHandler
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ErrorResponse EmailAlreadyExistsHandler(final EmailAlreadyExistsException e) {
+    public ErrorResponse emailAlreadyExistsHandler(final EmailAlreadyExistsException e) {
         return new ErrorResponse(
                 e.getMessage()
         );

@@ -7,7 +7,7 @@ import java.util.Collection;
 public interface ItemRepository {
     Item createItem(Item item);
 
-    Item patchItem(Item item);
+    Item updateItem(Item item);
 
     Collection<Item> getItemsByUserId(long userId);
 
