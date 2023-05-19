@@ -13,9 +13,6 @@ import ru.practicum.shareit.item.validations.SecondaryItemValidation;
 import java.util.Collection;
 import java.util.stream.Collectors;
 
-/**
- * TODO Sprint add-controllers.
- */
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/items")
@@ -35,15 +32,8 @@ public class ItemController {
                              @PathVariable long itemId,
                              @RequestBody ItemDto itemDto) {
         Item item = ItemMapper.mapToItem(itemId, userId, itemDto);
-        return ItemMapper.mapToDto(itemService.patchItem(item));
+        return ItemMapper.mapToDto(itemService.updateItem(item));
     }
-
-    /*@GetMapping
-    public Collection<ItemDto> getAllItems() {
-        return itemService.getAllItems().stream()
-                .map(ItemMapper::mapToDto)
-                .collect(Collectors.toList());
-    }*/
 
     @GetMapping
     public Collection<ItemDto> getItemsByOwner(@RequestHeader("X-Sharer-User-Id") long userId) {

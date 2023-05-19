@@ -17,6 +17,7 @@ import ru.practicum.shareit.user.repository.UserRepositoryImpl;
 import ru.practicum.shareit.user.service.UserService;
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicLong;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -43,9 +44,9 @@ public class ItemControllerTest {
     @AfterEach
     void clearAll() {
         userRepository.getUserMap().clear();
-        userRepository.setIdGenerator(0);
+        userRepository.getAtomicId().set(0);
         itemRepository.getItemMap().clear();
-        itemRepository.setIdGenerator(0);
+        itemRepository.getAtomicId().set(0);
     }
 
     @SneakyThrows

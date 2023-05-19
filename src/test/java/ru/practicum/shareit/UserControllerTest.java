@@ -38,7 +38,7 @@ class UserControllerTest {
     @AfterEach
     void clearUsers() {
         userRepository.getUserMap().clear();
-        userRepository.setIdGenerator(0);
+        userRepository.getAtomicId().set(0);
     }
 
     @SneakyThrows
