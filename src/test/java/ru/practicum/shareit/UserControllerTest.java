@@ -1,16 +1,19 @@
 package ru.practicum.shareit;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.practicum.shareit.user.controller.UserController;
+import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.model.User;
-import ru.practicum.shareit.user.repository.UserRepositoryImpl;
 import ru.practicum.shareit.user.service.UserService;
 
 import java.util.Collections;
@@ -22,29 +25,20 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@AutoConfigureTestDatabase
+@RequiredArgsConstructor(onConstructor_ = @Autowired)
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 class UserControllerTest {
 
-    @Autowired
-    UserController userController;
-    @Autowired
-    UserService userService;
-    @Autowired
-    UserRepositoryImpl userRepository;
     @Autowired
     private MockMvc mockMvc;
     @Autowired
     private ObjectMapper objectMapper;
 
-    @AfterEach
-    void clearUsers() {
-        userRepository.getUserMap().clear();
-        userRepository.getAtomicId().set(0);
-    }
-
     @SneakyThrows
     @Test
     void userWithGoodBehaviorTest() {
-        User user = User.builder()
+        UserDto user = UserDto.builder()
                 .email("user@user.com")
                 .name("user")
                 .build();
@@ -57,7 +51,7 @@ class UserControllerTest {
     @SneakyThrows
     @Test
     void userWithBadBehaviorTest() {
-        User user = User.builder()
+        UserDto user = UserDto.builder()
                 .email("bla")
                 .name("user")
                 .build();
@@ -70,15 +64,14 @@ class UserControllerTest {
     @SneakyThrows
     @Test
     void userPatchWithGoodBehaviorTest() {
-        User user = User.builder()
+        UserDto user = UserDto.builder()
                 .email("user@user.com")
                 .name("user")
                 .build();
         mockMvc.perform(post("/users")
                 .contentType("application/json")
                 .content(objectMapper.writeValueAsString(user)));
-
-        User userPatch = User.builder()
+        UserDto userPatch = UserDto.builder()
                 .name("bla")
                 .build();
         mockMvc.perform(patch("/users/1")
@@ -89,45 +82,15 @@ class UserControllerTest {
 
     @SneakyThrows
     @Test
-    void userPatchWithDublicateEmailTest() {
-        User user = User.builder()
-                .email("user@user.com")
-                .name("user")
-                .build();
-        mockMvc.perform(post("/users")
-                .contentType("application/json")
-                .content(objectMapper.writeValueAsString(user)));
-
-        User user1 = User.builder()
-                .email("user@user1.com")
-                .name("user1")
-                .build();
-        mockMvc.perform(post("/users")
-                .contentType("application/json")
-                .content(objectMapper.writeValueAsString(user1)));
-
-        User userPatch = User.builder()
-                .name("bla")
-                .email("user@user1.com")
-                .build();
-        mockMvc.perform(patch("/users/1")
-                        .contentType("application/json")
-                        .content(objectMapper.writeValueAsString(userPatch)))
-                .andExpect(status().is(500));
-    }
-
-    @SneakyThrows
-    @Test
     void userGetWithGoodBehaviorTest() {
-        User user = User.builder()
+        UserDto user = UserDto.builder()
                 .email("user@user.com")
                 .name("user")
                 .build();
         mockMvc.perform(post("/users")
                 .contentType("application/json")
                 .content(objectMapper.writeValueAsString(user)));
-
-        User user1 = User.builder()
+        UserDto user1 = UserDto.builder()
                 .email("user@user.com")
                 .name("user")
                 .id(1L)
@@ -141,15 +104,14 @@ class UserControllerTest {
     @SneakyThrows
     @Test
     void userGetListWithGoodBehaviorTest() {
-        User user = User.builder()
+        UserDto user = UserDto.builder()
                 .email("user@user.com")
                 .name("user")
                 .build();
         mockMvc.perform(post("/users")
                 .contentType("application/json")
                 .content(objectMapper.writeValueAsString(user)));
-
-        User user1 = User.builder()
+        UserDto user1 = UserDto.builder()
                 .email("user@user.com")
                 .name("user")
                 .id(1L)
@@ -163,7 +125,7 @@ class UserControllerTest {
     @SneakyThrows
     @Test
     void userDeleteWithGoodBehaviorTest() {
-        User user = User.builder()
+        UserDto user = UserDto.builder()
                 .email("user@user.com")
                 .name("user")
                 .build();
