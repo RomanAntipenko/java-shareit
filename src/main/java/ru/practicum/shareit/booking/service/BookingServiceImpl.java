@@ -23,7 +23,6 @@ import ru.practicum.shareit.user.repository.UserRepository;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Objects;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -31,24 +30,16 @@ import java.util.Optional;
 public class BookingServiceImpl implements BookingService {
 
     private final BookingRepository bookingRepository;
-
     private final UserRepository userRepository;
-
     private final ItemRepository itemRepository;
 
     @Override
     public Booking createBooking(long userId, BookingDto bookingDto) {
-        Optional<User> user = userRepository.findById(userId);
-        Optional<Item> item = itemRepository.findById(bookingDto.getItemId());
-        if (user.isEmpty()) {
-            log.debug("This user not found. In createBooking method");
-            throw new UserIdNotFoundException("Такого пользователя не существует");
-        }
-        if (item.isEmpty()) {
-            log.debug("This item not found. In createBooking method");
-            throw new ItemIdNotFoundException("Такого предмета не существует");
-        }
-        Booking booking = BookingMapper.mapToBooking(user.get(), item.get(), bookingDto);
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserIdNotFoundException("Такого пользователя не существует"));
+        Item item = itemRepository.findById(bookingDto.getItemId())
+                .orElseThrow(() -> new ItemIdNotFoundException("Такого предмета не существует"));
+        Booking booking = BookingMapper.mapToBooking(user, item, bookingDto);
         if (!booking.getEnd().isAfter(booking.getStart())) {
             log.debug("Incorrect date. In createBookingMethod");
             throw new IncorrectDateException("Передана некорректная дата бронирования");
@@ -67,51 +58,45 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public Booking acceptOrDeclineBooking(long userId, long bookingId, boolean approved) {
-        Optional<Booking> bookingOptional = bookingRepository.findById(bookingId);
-        if (bookingOptional.isEmpty()) {
-            log.debug("Incorrect booking. In acceptOrDeclineBooking method");
-            throw new BookingNotFoundException("Такого бронирования не существует");
-        }
+        Booking bookingOptional = bookingRepository.findById(bookingId)
+                .orElseThrow(() -> new BookingNotFoundException("Такого бронирования не существует"));
         if (!userRepository.existsById(userId)) {
             log.debug("This user not found. In acceptOrDeclineBooking method");
             throw new UserIdNotFoundException("Такого пользователя не существует");
         }
-        if (bookingOptional.get().getState() == BookingState.APPROVED) {
+        if (bookingOptional.getState() == BookingState.APPROVED) {
             log.debug("Double available in acceptOrDeclineBooking method");
             throw new InCorrectBookingException("Невозможно подтвердить подтвержденное бронирование");
         }
-        if (bookingOptional.get().getItem().getOwner().getId() != userId) {
+        if (bookingOptional.getItem().getOwner().getId() != userId) {
             log.debug("Incorrect owner or double available in acceptOrDeclineBooking method");
             throw new BookingNotFoundException("Только владелец вещи может подтверждать бронирование.");
         }
         if (approved) {
-            bookingOptional.get().setState(BookingState.APPROVED);
+            bookingOptional.setState(BookingState.APPROVED);
         } else {
-            bookingOptional.get().setState(BookingState.REJECTED);
+            bookingOptional.setState(BookingState.REJECTED);
         }
-        return bookingRepository.save(bookingOptional.get());
+        return bookingRepository.save(bookingOptional);
     }
 
     public Booking getBookingForOwnerOrBooker(long userId, long bookingId) {
-        Optional<Booking> bookingOptional = bookingRepository.findById(bookingId);
-        if (bookingOptional.isEmpty()) {
-            log.debug("Incorrect booking. In getBookingForOwnerOrBooker method");
-            throw new BookingNotFoundException("Такого бронирования не существует");
-        }
+        Booking bookingOptional = bookingRepository.findById(bookingId)
+                .orElseThrow(() -> new BookingNotFoundException("Такого бронирования не существует"));
         if (!userRepository.existsById(userId)) {
             log.debug("This user not found. In getBookingForOwnerOrBooker method");
             throw new UserIdNotFoundException("Такого пользователя не существует");
         }
-        if (bookingOptional.get().getItem().getOwner().getId() != userId
-                && bookingOptional.get().getBooker().getId() != userId) {
+        if (bookingOptional.getItem().getOwner().getId() != userId
+                && bookingOptional.getBooker().getId() != userId) {
             log.debug("Incorrect owner or booker in getBookingForOwnerOrBooker method");
             throw new BookingNotFoundException("Только владелец вещи или арендатор может просматривать бронирование.");
         }
-        if (!bookingOptional.get().getItem().getAvailable()) {
+        if (!bookingOptional.getItem().getAvailable()) {
             log.debug("This item is not available. In getBookingForOwnerOrBooker method");
             throw new ItemUnavailableException("Этот предмет недоступен для бронирования");
         }
-        return bookingOptional.get();
+        return bookingOptional;
     }
 
     @Override

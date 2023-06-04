@@ -21,6 +21,7 @@ public class ErrorHandler {
     @ExceptionHandler
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ErrorResponse emailAlreadyExistsHandler(final EmailAlreadyExistsException e) {
+        log.error(e.getMessage() + ". Ошибка: " + e.getClass().getName());
         return new ErrorResponse(
                 e.getMessage()
         );
@@ -29,6 +30,7 @@ public class ErrorHandler {
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse userIdNotFoundHandler(final UserIdNotFoundException e) {
+        log.error(e.getMessage() + ". Ошибка: " + e.getClass().getName());
         return new ErrorResponse(
                 e.getMessage()
         );
@@ -37,6 +39,7 @@ public class ErrorHandler {
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse itemIdNotFoundHandler(final ItemIdNotFoundException e) {
+        log.error(e.getMessage() + ". Ошибка: " + e.getClass().getName());
         return new ErrorResponse(
                 e.getMessage()
         );
@@ -45,6 +48,7 @@ public class ErrorHandler {
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse ownerIdMismatchHandler(final OwnerIdMismatchException e) {
+        log.error(e.getMessage() + ". Ошибка: " + e.getClass().getName());
         return new ErrorResponse(
                 e.getMessage()
         );
@@ -53,6 +57,7 @@ public class ErrorHandler {
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse incorrectDateHandler(final IncorrectDateException e) {
+        log.error(e.getMessage() + ". Ошибка: " + e.getClass().getName());
         return new ErrorResponse(
                 e.getMessage()
         );
@@ -61,6 +66,7 @@ public class ErrorHandler {
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse itemUnavailableHandler(final ItemUnavailableException e) {
+        log.error(e.getMessage() + ". Ошибка: " + e.getClass().getName());
         return new ErrorResponse(
                 e.getMessage()
         );
@@ -69,6 +75,7 @@ public class ErrorHandler {
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse bookingNotFoundHandler(final BookingNotFoundException e) {
+        log.error(e.getMessage() + ". Ошибка: " + e.getClass().getName());
         return new ErrorResponse(
                 e.getMessage()
         );
@@ -77,6 +84,7 @@ public class ErrorHandler {
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse inCorrectBookingHandler(final InCorrectBookingException e) {
+        log.error(e.getMessage() + ". Ошибка: " + e.getClass().getName());
         return new ErrorResponse(
                 e.getMessage()
         );
@@ -85,6 +93,7 @@ public class ErrorHandler {
     @ExceptionHandler
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ErrorResponse inCorrectStatusHandler(final InCorrectStatusException e) {
+        log.error(e.getMessage() + ". Ошибка: " + e.getClass().getName());
         return new ErrorResponse(
                 e.getMessage()
         );

@@ -25,7 +25,6 @@ import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -41,38 +40,29 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public Item createItem(long userId, ItemDto itemDto) {
-        Optional<User> userOptional = userRepository.findById(userId);
-        if (userOptional.isEmpty()) {
-            log.debug("userId not found in create method");
-            throw new UserIdNotFoundException(String.format("itemId: \"%s\" не найден", userId));
-        }
-        Item item = ItemMapper.mapToItem(userOptional.get(), itemDto);
+        User userOptional = userRepository.findById(userId)
+                .orElseThrow(() -> new UserIdNotFoundException(String.format("itemId: \"%s\" не найден", userId)));
+        Item item = ItemMapper.mapToItem(userOptional, itemDto);
         return itemRepository.save(item);
     }
 
     @Override
     public Item updateItem(long userId, long itemId, ItemDto itemDto) {
-        Optional<User> userOptional = userRepository.findById(userId);
-        Optional<Item> itemOptional = itemRepository.findById(itemId);
-        if (userOptional.isEmpty()) {
-            log.debug("userId not found in update method");
-            throw new UserIdNotFoundException(String.format("itemId: \"%s\" не найден", userId));
-        }
-        if (itemOptional.isEmpty()) {
-            log.debug("itemId not found in update method");
-            throw new ItemIdNotFoundException(String.format("itemId: \"%s\" не найден", itemId));
-        }
-        Item item = ItemMapper.mapToItem(itemId, userOptional.get(), itemDto);
+        User userOptional = userRepository.findById(userId)
+                .orElseThrow(() -> new UserIdNotFoundException(String.format("itemId: \"%s\" не найден", userId)));
+        Item itemOptional = itemRepository.findById(itemId)
+                .orElseThrow(() -> new ItemIdNotFoundException(String.format("itemId: \"%s\" не найден", itemId)));
+        Item item = ItemMapper.mapToItem(itemId, userOptional, itemDto);
         if (item.getAvailable() != null) {
-            itemOptional.get().setAvailable(item.getAvailable());
+            itemOptional.setAvailable(item.getAvailable());
         }
         if (item.getName() != null) {
-            itemOptional.get().setName(item.getName());
+            itemOptional.setName(item.getName());
         }
         if (item.getDescription() != null) {
-            itemOptional.get().setDescription(item.getDescription());
+            itemOptional.setDescription(item.getDescription());
         }
-        return itemRepository.save(itemOptional.get());
+        return itemRepository.save(itemOptional);
     }
 
     @Override
@@ -98,20 +88,16 @@ public class ItemServiceImpl implements ItemService {
             log.debug("User id not found in getItemById method");
             throw new UserIdNotFoundException(String.format("userId: \"%s\" не найден", userId));
         }
-        Optional<Item> itemOptional = itemRepository.findById(itemId);
-        if (itemOptional.isEmpty()) {
-            log.debug("itemId not found in getItemById method");
-            throw new ItemIdNotFoundException(String.format("itemId: \"%s\" не найден", itemId));
-        }
+        Item itemOptional = itemRepository.findById(itemId)
+                .orElseThrow(() -> new ItemIdNotFoundException(String.format("itemId: \"%s\" не найден", itemId)));
         List<Comment> comments = commentRepository.findAllByItemId(itemId);
-        ItemDto itemDto = ItemMapper.mapToDto(itemOptional.get());
-        if (itemOptional.get().getOwner().getId().equals(userId)) {
+        ItemDto itemDto = ItemMapper.mapToDto(itemOptional);
+        if (itemOptional.getOwner().getId().equals(userId)) {
             addLastAndNextBookingToItem(itemDto);
         }
         itemDto.setComments(comments.stream()
                 .map(CommentMapper::mapToCommentDto)
                 .collect(Collectors.toList()));
-        //TODO доделать комментарии
         return itemDto;
     }
 
@@ -138,19 +124,13 @@ public class ItemServiceImpl implements ItemService {
     }
 
     public CommentDto postComment(long userId, long itemId, CommentDto commentDto) {
-        Optional<User> userOptional = userRepository.findById(userId);
-        if (userOptional.isEmpty()) {
-            log.debug("User id not found in postComment method");
-            throw new UserIdNotFoundException(String.format("userId: \"%s\" не найден", userId));
-        }
-        Optional<Item> itemOptional = itemRepository.findById(itemId);
-        if (itemOptional.isEmpty()) {
-            log.debug("itemId not found in postComment method");
-            throw new ItemIdNotFoundException(String.format("itemId: \"%s\" не найден", itemId));
-        }
+        User userOptional = userRepository.findById(userId)
+                .orElseThrow(() -> new UserIdNotFoundException(String.format("userId: \"%s\" не найден", userId)));
+        Item itemOptional = itemRepository.findById(itemId)
+                .orElseThrow(() -> new ItemIdNotFoundException(String.format("itemId: \"%s\" не найден", itemId)));
         LocalDateTime rightMoment = LocalDateTime.now();
         Comment comment = CommentMapper
-                .mapToComment(userOptional.get(), itemOptional.get(), commentDto, rightMoment);
+                .mapToComment(userOptional, itemOptional, commentDto, rightMoment);
         Booking lastBooking = bookingRepository.findFirstBookingByItemIdAndEndIsBeforeAndStateNotLikeOrderByEndDesc(
                 itemId, rightMoment, BookingState.REJECTED);
         if (lastBooking == null) {

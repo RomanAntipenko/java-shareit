@@ -25,9 +25,11 @@ public class Booking {
     private LocalDateTime end;
     @ManyToOne
     @JoinColumn(name = "item_id")
+    @ToString.Exclude
     private Item item;
     @ManyToOne
     @JoinColumn(name = "booker_id")
+    @ToString.Exclude
     private User booker;
     @Enumerated(EnumType.STRING)
     @Column(name = "state")

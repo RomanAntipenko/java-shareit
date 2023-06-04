@@ -18,9 +18,9 @@ public class Item {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Long id;
-
     @ManyToOne
     @JoinColumn(name = "owner_id")
+    @ToString.Exclude
     private User owner;
     @Column(name = "name")
     private String name;

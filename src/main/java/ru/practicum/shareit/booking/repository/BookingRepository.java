@@ -2,14 +2,15 @@ package ru.practicum.shareit.booking.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.stereotype.Repository;
 import ru.practicum.shareit.booking.enums.BookingState;
 import ru.practicum.shareit.booking.model.Booking;
 
 import java.time.LocalDateTime;
 import java.util.Collection;
 
+@Repository
 public interface BookingRepository extends JpaRepository<Booking, Long> {
-
     @Query("SELECT b " +
             "FROM Booking as b " +
             "JOIN b.booker as bb " +

@@ -21,9 +21,11 @@ public class Comment {
     private String text;
     @ManyToOne
     @JoinColumn(name = "item_id")
+    @ToString.Exclude
     private Item item;
     @ManyToOne
     @JoinColumn(name = "author_id")
+    @ToString.Exclude
     private User author;
     @Column(name = "created")
     private LocalDateTime created;
