@@ -1,52 +1,36 @@
 package ru.practicum.shareit;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
-import ru.practicum.shareit.item.controller.ItemController;
 import ru.practicum.shareit.item.dto.ItemDto;
-import ru.practicum.shareit.item.repository.ItemRepositoryImpl;
-import ru.practicum.shareit.user.controller.UserController;
 import ru.practicum.shareit.user.dto.UserDto;
-import ru.practicum.shareit.user.repository.UserRepositoryImpl;
-import ru.practicum.shareit.user.service.UserService;
 
+import java.util.Collections;
 import java.util.List;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+
 @SpringBootTest
 @AutoConfigureMockMvc
+@AutoConfigureTestDatabase
+@RequiredArgsConstructor(onConstructor_ = @Autowired)
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 public class ItemControllerTest {
-    @Autowired
-    UserController userController;
-    @Autowired
-    UserService userService;
-    @Autowired
-    UserRepositoryImpl userRepository;
-    @Autowired
-    ItemController itemController;
-    @Autowired
-    ItemRepositoryImpl itemRepository;
     @Autowired
     private MockMvc mockMvc;
     @Autowired
     private ObjectMapper objectMapper;
-
-    @AfterEach
-    void clearAll() {
-        userRepository.getUserMap().clear();
-        userRepository.getAtomicId().set(0);
-        itemRepository.getItemMap().clear();
-        itemRepository.getAtomicId().set(0);
-    }
 
     @SneakyThrows
     @Test
@@ -153,8 +137,10 @@ public class ItemControllerTest {
                         .available(true)
                         .description("Описание")
                         .name("Товар")
+                        .comments(Collections.emptyList())
+                        .lastBooking(null)
+                        .nextBooking(null)
                         .build())));
-
     }
 
     @SneakyThrows
