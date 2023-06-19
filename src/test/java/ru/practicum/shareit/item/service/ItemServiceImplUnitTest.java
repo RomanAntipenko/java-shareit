@@ -435,8 +435,7 @@ class ItemServiceImplUnitTest {
         items.add(secondItem);
         String text = "Beer";
         Mockito.when(itemRepository.search(Mockito.anyString(), Mockito.any()))
-                .thenAnswer(invocationOnMock ->
-                {
+                .thenAnswer(invocationOnMock -> {
                     String text1 = invocationOnMock.getArgument(0, String.class);
                     if (text1.equals("Beer")) {
                         return items;
