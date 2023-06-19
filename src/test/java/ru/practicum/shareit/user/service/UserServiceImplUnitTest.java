@@ -69,6 +69,7 @@ class UserServiceImplUnitTest {
     void updateUserAndItsOk() {
         User secondUserToUpdate = new User();
         secondUserToUpdate.setName("notsanya");
+        secondUserToUpdate.setEmail("franki@mail.ru");
         secondUserToUpdate.setId(1L);
 
         Mockito.when(userRepository.findById(1L))

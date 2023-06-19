@@ -354,7 +354,7 @@ class ItemServiceImplUnitTest {
                 .thenThrow(UserIdNotFoundException.class);
         Assertions.assertThrows(UserIdNotFoundException.class,
                 () -> itemService.getAllItemsByOwner(1L, null, null));
-    } //c пагинацией?
+    }
 
     @Test
     void getItemByIdAndItsOkWithOutBooking() {
