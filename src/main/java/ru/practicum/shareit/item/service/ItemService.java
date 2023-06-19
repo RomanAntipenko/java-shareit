@@ -11,9 +11,9 @@ public interface ItemService {
 
     Item updateItem(long userId, long itemId, ItemDto item);
 
-    Collection<ItemDto> getAllItemsByOwner(long userId);
+    Collection<ItemDto> getAllItemsByOwner(long userId, Integer from, Integer size);
 
-    Collection<Item> searchItem(String text);
+    Collection<Item> searchItem(String text, Integer from, Integer size);
 
     ItemDto getItemById(long userId, long itemId);
 

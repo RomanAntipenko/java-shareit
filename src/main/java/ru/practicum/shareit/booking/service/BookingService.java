@@ -12,5 +12,6 @@ public interface BookingService {
 
     public Booking getBookingForOwnerOrBooker(long userId, long bookingId);
 
-    public Collection<Booking> getAllBookingsForUser(long userId, String state, boolean isOwner);
+    public Collection<Booking> getAllBookingsForUser(long userId, String state, boolean isOwner, Integer from,
+                                                     Integer size);
 }

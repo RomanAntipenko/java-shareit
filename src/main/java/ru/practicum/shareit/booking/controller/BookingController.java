@@ -42,18 +42,22 @@ public class BookingController {
 
     @GetMapping
     public List<BookingDto> getAllBookingsForBooker(@RequestHeader("X-Sharer-User-Id") long userId,
-                                                    @RequestParam(defaultValue = "ALL") String state) {
+                                                    @RequestParam(defaultValue = "ALL") String state,
+                                                    @RequestParam(required = false) Integer from,
+                                                    @RequestParam(required = false) Integer size) {
         log.info("Вызван метод просмотра списка бронирования для клиента, в BookingController");
-        return bookingService.getAllBookingsForUser(userId, state, false).stream()
+        return bookingService.getAllBookingsForUser(userId, state, false, from, size).stream()
                 .map(BookingMapper::mapToBookingDto)
                 .collect(Collectors.toList());
     }
 
     @GetMapping("/owner")
     public List<BookingDto> getAllBookingForOwner(@RequestHeader("X-Sharer-User-Id") long userId,
-                                                  @RequestParam(defaultValue = "ALL") String state) {
+                                                  @RequestParam(defaultValue = "ALL") String state,
+                                                  @RequestParam(required = false) Integer from,
+                                                  @RequestParam(required = false) Integer size) {
         log.info("Вызван метод просмотра списка бронирования для владельца, в BookingController");
-        return bookingService.getAllBookingsForUser(userId, state, true).stream()
+        return bookingService.getAllBookingsForUser(userId, state, true, from, size).stream()
                 .map(BookingMapper::mapToBookingDto)
                 .collect(Collectors.toList());
     }

@@ -39,9 +39,11 @@ public class ItemController {
     }
 
     @GetMapping
-    public Collection<ItemDto> getItemsByOwner(@RequestHeader("X-Sharer-User-Id") long userId) {
+    public Collection<ItemDto> getItemsByOwner(@RequestHeader("X-Sharer-User-Id") long userId,
+                                               @RequestParam(required = false) Integer from,
+                                               @RequestParam(required = false) Integer size) {
         log.info("Вызван метод получения списка предметов для владельца, в ItemController");
-        return itemService.getAllItemsByOwner(userId);
+        return itemService.getAllItemsByOwner(userId, from, size);
     }
 
     @GetMapping("/{itemId}")
@@ -52,9 +54,11 @@ public class ItemController {
     }
 
     @GetMapping("/search")
-    public Collection<ItemDto> getItemByText(@RequestParam("text") String text) {
+    public Collection<ItemDto> getItemByText(@RequestParam("text") String text,
+                                             @RequestParam(required = false) Integer from,
+                                             @RequestParam(required = false) Integer size) {
         log.info("Вызван метод поиска предмета, в ItemController");
-        return itemService.searchItem(text).stream()
+        return itemService.searchItem(text, from, size).stream()
                 .map(ItemMapper::mapToDto)
                 .collect(Collectors.toList());
     }
