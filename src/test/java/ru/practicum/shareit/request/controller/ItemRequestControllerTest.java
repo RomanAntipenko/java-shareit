@@ -95,7 +95,8 @@ class ItemRequestControllerTest {
         ItemRequestDto itemRequestDto = ItemRequestMapper.mapToItemRequestDto(firstItemRequest);
 
         Mockito.when(itemRequestService.getRequestsByRequestor(firstUser.getId()))
-                .thenReturn(List.of(itemRequestDto));
+                .thenReturn(List.of(firstItemRequest));
+
 
         mockMvc.perform(get("/requests")
                         .header("X-Sharer-User-Id", String.valueOf(firstUser.getId())))
@@ -111,7 +112,7 @@ class ItemRequestControllerTest {
         ItemRequestDto itemRequestDto = ItemRequestMapper.mapToItemRequestDto(firstItemRequest);
 
         Mockito.when(itemRequestService.getRequestByRequestId(firstUser.getId(), firstItemRequest.getId()))
-                .thenReturn(itemRequestDto);
+                .thenReturn(firstItemRequest);
 
         mockMvc.perform(get("/requests/{requestId}", firstItemRequest.getId())
                         .header("X-Sharer-User-Id", String.valueOf(firstUser.getId())))
@@ -136,7 +137,7 @@ class ItemRequestControllerTest {
         ItemRequestDto secondItemRequestDto = ItemRequestMapper.mapToItemRequestDto(thirdItemRequest);
 
         Mockito.when(itemRequestService.getRequestsWithPagination(secondUser.getId(), 0, 2))
-                .thenReturn(List.of(firstItemRequestDto, secondItemRequestDto));
+                .thenReturn(List.of(firstItemRequest, thirdItemRequest));
 
         mockMvc.perform(get("/requests/all")
                         .header("X-Sharer-User-Id", String.valueOf(secondUser.getId()))

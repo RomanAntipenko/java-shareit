@@ -111,7 +111,7 @@ class ItemRequestServiceImplIntegrationTest {
     void getRequestsByRequestor() {
         User firstSavedUser = userRepository.save(firstUser);
         ItemRequest itemRequest = itemRequestService.createRequest(firstSavedUser.getId(), firstItemRequestDto);
-        List<ItemRequestDto> list = List.of(ItemRequestMapper.mapToItemRequestDto(itemRequest));
+        List<ItemRequest> list = List.of(itemRequest);
 
         Assertions.assertEquals(list, itemRequestService.getRequestsByRequestor(firstSavedUser.getId()));
     }
@@ -121,7 +121,7 @@ class ItemRequestServiceImplIntegrationTest {
         User firstSavedUser = userRepository.save(firstUser);
         ItemRequest itemRequest = itemRequestService.createRequest(firstSavedUser.getId(), firstItemRequestDto);
 
-        Assertions.assertEquals(ItemRequestMapper.mapToItemRequestDto(itemRequest),
+        Assertions.assertEquals(itemRequest,
                 itemRequestService.getRequestByRequestId(firstSavedUser.getId(), itemRequest.getId()));
         Assertions.assertThrows(RequestIdNotFoundException.class,
                 () -> itemRequestService.getRequestByRequestId(firstSavedUser.getId(), 99L));
@@ -132,7 +132,7 @@ class ItemRequestServiceImplIntegrationTest {
         User firstSavedUser = userRepository.save(firstUser);
         User secondSavedUser = userRepository.save(secondUser);
         ItemRequest itemRequest = itemRequestService.createRequest(firstSavedUser.getId(), firstItemRequestDto);
-        List<ItemRequestDto> list = List.of(ItemRequestMapper.mapToItemRequestDto(itemRequest));
+        List<ItemRequest> list = List.of(itemRequest);
 
         Assertions.assertEquals(Collections.emptyList(),
                 itemRequestService.getRequestsWithPagination(firstSavedUser.getId(), 0, 2));

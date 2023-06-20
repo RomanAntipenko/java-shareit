@@ -8,10 +8,10 @@ import java.util.Collection;
 public interface ItemRequestService {
     ItemRequest createRequest(long userId, ItemRequestDto itemRequestDto);
 
-    Collection<ItemRequestDto> getRequestsByRequestor(long userId);
+    Collection<ItemRequest> getRequestsByRequestor(long userId);
 
-    ItemRequestDto getRequestByRequestId(long userId, long requestId);
+    ItemRequest getRequestByRequestId(long userId, long requestId);
 
-    Collection<ItemRequestDto> getRequestsWithPagination(long userId, Integer from, Integer size);
+    Collection<ItemRequest> getRequestsWithPagination(long userId, Integer from, Integer size);
 }
 

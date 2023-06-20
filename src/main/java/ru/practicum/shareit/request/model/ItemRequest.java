@@ -20,13 +20,13 @@ public class ItemRequest {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(name = "description")
+    @Column
     private String description;
     @ManyToOne
     @JoinColumn(name = "requestor_id")
     @ToString.Exclude
     private User requestor;
-    @Column(name = "created")
+    @Column
     private LocalDateTime created;
     @OneToMany(mappedBy = "request")
     @ToString.Exclude

@@ -9,6 +9,7 @@ import ru.practicum.shareit.request.dto.ItemRequestMapper;
 import ru.practicum.shareit.request.service.ItemRequestService;
 
 import java.util.Collection;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @RestController
@@ -27,14 +28,16 @@ public class ItemRequestController {
     @GetMapping
     public Collection<ItemRequestDto> getRequestsByRequestor(@RequestHeader("X-Sharer-User-Id") long userId) {
         log.info("Вызван метод получения списка запросов на предмет для создателя запроса, в ItemRequestController");
-        return itemRequestService.getRequestsByRequestor(userId);
+        return itemRequestService.getRequestsByRequestor(userId).stream()
+                .map(ItemRequestMapper::mapToItemRequestDto)
+                .collect(Collectors.toList());
     }
 
     @GetMapping("/{requestId}")
     public ItemRequestDto getRequestByRequestId(@RequestHeader("X-Sharer-User-Id") long userId,
                                                 @PathVariable long requestId) {
         log.info("Вызван метод получения списка запросов на предмет для создателя запроса, в ItemRequestController");
-        return itemRequestService.getRequestByRequestId(userId, requestId);
+        return ItemRequestMapper.mapToItemRequestDto(itemRequestService.getRequestByRequestId(userId, requestId));
     }
 
     @GetMapping("/all")
@@ -42,6 +45,8 @@ public class ItemRequestController {
                                                                 @RequestParam(required = false) Integer from,
                                                                 @RequestParam(required = false) Integer size) {
         log.info("Вызван метод получения списка запросов на предмет с пагинацией, в ItemRequestController");
-        return itemRequestService.getRequestsWithPagination(userId, from, size);
+        return itemRequestService.getRequestsWithPagination(userId, from, size).stream()
+                .map(ItemRequestMapper::mapToItemRequestDto)
+                .collect(Collectors.toList());
     }
 }

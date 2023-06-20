@@ -12,7 +12,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
-import ru.practicum.shareit.request.dto.ItemRequestMapper;
 import ru.practicum.shareit.request.exceptions.PaginationNotValidException;
 import ru.practicum.shareit.request.exceptions.RequestIdNotFoundException;
 import ru.practicum.shareit.request.model.ItemRequest;
@@ -26,7 +25,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @ExtendWith(MockitoExtension.class)
 class ItemRequestServiceImplUnitTest {
@@ -126,10 +124,8 @@ class ItemRequestServiceImplUnitTest {
                 .thenReturn(true);
         Mockito.when(itemRequestRepository.findAllByRequestorIdOrderByCreatedDesc(thirdUser.getId()))
                 .thenReturn(itemRequests);
-        List<ItemRequestDto> itemRequestsDto = itemRequests.stream()
-                .map(ItemRequestMapper::mapToItemRequestDto)
-                .collect(Collectors.toList());
-        Assertions.assertEquals(itemRequestsDto, itemRequestService.getRequestsByRequestor(thirdUser.getId()));
+
+        Assertions.assertEquals(itemRequests, itemRequestService.getRequestsByRequestor(thirdUser.getId()));
         Mockito.verify(itemRequestRepository, Mockito.times(1))
                 .findAllByRequestorIdOrderByCreatedDesc(thirdUser.getId());
     }
@@ -174,7 +170,7 @@ class ItemRequestServiceImplUnitTest {
         Mockito.when(itemRequestRepository.findById(firstItemRequest.getId()))
                 .thenReturn(Optional.of(firstItemRequest));
 
-        Assertions.assertEquals(ItemRequestMapper.mapToItemRequestDto(firstItemRequest),
+        Assertions.assertEquals(firstItemRequest,
                 itemRequestService.getRequestByRequestId(thirdUser.getId(), firstItemRequest.getId()));
         Mockito.verify(itemRequestRepository, Mockito.times(1))
                 .findById(firstItemRequest.getId());
@@ -198,11 +194,8 @@ class ItemRequestServiceImplUnitTest {
         itemRequestList.add(firstItemRequest);
         Mockito.when(itemRequestRepository.findAllWithPagination(firstUser.getId(), PageRequest.of(0, 2, sort)))
                 .thenReturn(itemRequestList);
-        List<ItemRequestDto> itemRequestDtoList = itemRequestList.stream()
-                .map(ItemRequestMapper::mapToItemRequestDto)
-                .collect(Collectors.toList());
 
-        Assertions.assertEquals(itemRequestDtoList, itemRequestService.getRequestsWithPagination(
+        Assertions.assertEquals(itemRequestList, itemRequestService.getRequestsWithPagination(
                 firstUser.getId(), 0, 2));
         Mockito.verify(itemRequestRepository, Mockito.times(1)).findAllWithPagination(
                 firstUser.getId(), PageRequest.of(0, 2, sort));
@@ -215,11 +208,8 @@ class ItemRequestServiceImplUnitTest {
         itemRequestList.add(firstItemRequest);
         Mockito.when(itemRequestRepository.findAllWithPagination(firstUser.getId(), sort))
                 .thenReturn(itemRequestList);
-        List<ItemRequestDto> itemRequestDtoList = itemRequestList.stream()
-                .map(ItemRequestMapper::mapToItemRequestDto)
-                .collect(Collectors.toList());
 
-        Assertions.assertEquals(itemRequestDtoList, itemRequestService.getRequestsWithPagination(
+        Assertions.assertEquals(itemRequestList, itemRequestService.getRequestsWithPagination(
                 firstUser.getId(), null, null));
         Mockito.verify(itemRequestRepository, Mockito.times(1)).findAllWithPagination(
                 firstUser.getId(), sort);

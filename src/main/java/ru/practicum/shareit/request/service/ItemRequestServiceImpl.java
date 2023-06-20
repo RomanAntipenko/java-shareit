@@ -20,7 +20,6 @@ import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
@@ -40,7 +39,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     }
 
     @Override
-    public Collection<ItemRequestDto> getRequestsByRequestor(long userId) {
+    public Collection<ItemRequest> getRequestsByRequestor(long userId) {
         if (!userRepository.existsById(userId)) {
             log.debug("User id not found in getRequestsByRequestor method");
             throw new UserIdNotFoundException(String.format("userId: \"%s\" не найден", userId));
@@ -49,24 +48,22 @@ public class ItemRequestServiceImpl implements ItemRequestService {
         if (itemRequests.isEmpty()) {
             return Collections.emptyList();
         }
-        return itemRequests.stream()
-                .map(ItemRequestMapper::mapToItemRequestDto)
-                .collect(Collectors.toList());
+        return itemRequests;
     }
 
     @Override
-    public ItemRequestDto getRequestByRequestId(long userId, long requestId) {
+    public ItemRequest getRequestByRequestId(long userId, long requestId) {
         if (!userRepository.existsById(userId)) {
             log.debug("User id not found in getRequestByRequestId method");
             throw new UserIdNotFoundException(String.format("userId: \"%s\" не найден", userId));
         }
         ItemRequest itemRequest = itemRequestRepository.findById(requestId).orElseThrow(() ->
                 new RequestIdNotFoundException(String.format("requestId: \"%s\" не найден", requestId)));
-        return ItemRequestMapper.mapToItemRequestDto(itemRequest);
+        return itemRequest;
     }
 
     @Override
-    public Collection<ItemRequestDto> getRequestsWithPagination(long userId, Integer from, Integer size) {
+    public Collection<ItemRequest> getRequestsWithPagination(long userId, Integer from, Integer size) {
         Sort sort = Sort.by(Sort.Direction.DESC, "created");
         List<ItemRequest> itemRequestList;
         if (from != null && size != null) {
@@ -82,8 +79,6 @@ public class ItemRequestServiceImpl implements ItemRequestService {
         if (itemRequestList.isEmpty()) {
             return Collections.emptyList();
         }
-        return itemRequestList.stream()
-                .map(ItemRequestMapper::mapToItemRequestDto)
-                .collect(Collectors.toList());
+        return itemRequestList;
     }
 }

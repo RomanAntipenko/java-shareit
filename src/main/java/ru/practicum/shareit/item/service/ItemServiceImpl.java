@@ -159,7 +159,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public CommentDto postComment(long userId, long itemId, CommentDto commentDto) {
+    public Comment postComment(long userId, long itemId, CommentDto commentDto) {
         User userOptional = userRepository.findById(userId)
                 .orElseThrow(() -> new UserIdNotFoundException(String.format("userId: \"%s\" не найден", userId)));
         Item itemOptional = itemRepository.findById(itemId)
@@ -180,6 +180,6 @@ public class ItemServiceImpl implements ItemService {
                     "поэтому невозможно написать комментарий");
         }
         Comment savedComment = commentRepository.save(comment);
-        return CommentMapper.mapToCommentDto(savedComment);
+        return savedComment;
     }
 }

@@ -34,6 +34,6 @@ public class Booking {
     @ToString.Exclude
     private User booker;
     @Enumerated(EnumType.STRING)
-    @Column(name = "state")
+    @Column
     private BookingState state;
 }

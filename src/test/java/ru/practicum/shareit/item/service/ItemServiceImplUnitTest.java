@@ -481,7 +481,7 @@ class ItemServiceImplUnitTest {
         Mockito.when(commentRepository.save(Mockito.any()))
                 .thenReturn(savedComment);
 
-        Assertions.assertEquals(CommentMapper.mapToCommentDto(savedComment), itemService.postComment(
+        Assertions.assertEquals(savedComment, itemService.postComment(
                 2L, 1L, commentDto));
         Mockito.verify(commentRepository, Mockito.times(1)).save(Mockito.any());
     }

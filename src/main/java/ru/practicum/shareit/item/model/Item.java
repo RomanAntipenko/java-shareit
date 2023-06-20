@@ -19,15 +19,14 @@ public class Item {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
     private Long id;
     @ManyToOne
     @JoinColumn(name = "owner_id")
     @ToString.Exclude
     private User owner;
-    @Column(name = "name")
+    @Column
     private String name;
-    @Column(name = "description")
+    @Column
     private String description;
     @Column(name = "is_available")
     private Boolean available;

@@ -17,7 +17,7 @@ public class Comment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(name = "text")
+    @Column
     private String text;
     @ManyToOne
     @JoinColumn(name = "item_id")
@@ -27,6 +27,6 @@ public class Comment {
     @JoinColumn(name = "author_id")
     @ToString.Exclude
     private User author;
-    @Column(name = "created")
+    @Column
     private LocalDateTime created;
 }

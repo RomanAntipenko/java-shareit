@@ -227,14 +227,13 @@ class ItemServiceImplIntegrationTest {
                 .build();
         Comment comment = CommentMapper.mapToComment(firstSavedUser, secondSavedItem, commentDto, LocalDateTime.now());
         comment.setId(1L);
-        CommentDto expected = CommentMapper.mapToCommentDto(comment);
-        CommentDto actual = itemService.postComment(
+        Comment actual = itemService.postComment(
                 firstSavedUser.getId(), secondSavedItem.getId(), commentDto);
 
-        Assertions.assertEquals(expected.getId(), actual.getId());
-        Assertions.assertEquals(expected.getText(), actual.getText());
-        Assertions.assertEquals(expected.getAuthorName(), actual.getAuthorName());
-        Assertions.assertEquals(expected.getCreated().truncatedTo(ChronoUnit.MINUTES),
+        Assertions.assertEquals(comment.getId(), actual.getId());
+        Assertions.assertEquals(comment.getText(), actual.getText());
+        Assertions.assertEquals(comment.getAuthor(), actual.getAuthor());
+        Assertions.assertEquals(comment.getCreated().truncatedTo(ChronoUnit.MINUTES),
                 actual.getCreated().truncatedTo(ChronoUnit.MINUTES));
     }
 }
