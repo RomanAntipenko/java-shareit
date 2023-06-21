@@ -110,8 +110,8 @@ class ItemRequestServiceImplIntegrationTest {
     @Test
     void getRequestsByRequestor() {
         User firstSavedUser = userRepository.save(firstUser);
-        ItemRequest itemRequest = itemRequestService.createRequest(firstSavedUser.getId(), firstItemRequestDto);
-        List<ItemRequest> list = List.of(itemRequest);
+        ItemRequestDto itemRequest = itemRequestService.createRequest(firstSavedUser.getId(), firstItemRequestDto);
+        List<ItemRequestDto> list = List.of(itemRequest);
 
         Assertions.assertEquals(list, itemRequestService.getRequestsByRequestor(firstSavedUser.getId()));
     }
@@ -119,7 +119,7 @@ class ItemRequestServiceImplIntegrationTest {
     @Test
     void getRequestByRequestId() {
         User firstSavedUser = userRepository.save(firstUser);
-        ItemRequest itemRequest = itemRequestService.createRequest(firstSavedUser.getId(), firstItemRequestDto);
+        ItemRequestDto itemRequest = itemRequestService.createRequest(firstSavedUser.getId(), firstItemRequestDto);
 
         Assertions.assertEquals(itemRequest,
                 itemRequestService.getRequestByRequestId(firstSavedUser.getId(), itemRequest.getId()));
@@ -131,8 +131,8 @@ class ItemRequestServiceImplIntegrationTest {
     void getRequestsWithPagination() {
         User firstSavedUser = userRepository.save(firstUser);
         User secondSavedUser = userRepository.save(secondUser);
-        ItemRequest itemRequest = itemRequestService.createRequest(firstSavedUser.getId(), firstItemRequestDto);
-        List<ItemRequest> list = List.of(itemRequest);
+        ItemRequestDto itemRequest = itemRequestService.createRequest(firstSavedUser.getId(), firstItemRequestDto);
+        List<ItemRequestDto> list = List.of(itemRequest);
 
         Assertions.assertEquals(Collections.emptyList(),
                 itemRequestService.getRequestsWithPagination(firstSavedUser.getId(), 0, 2));

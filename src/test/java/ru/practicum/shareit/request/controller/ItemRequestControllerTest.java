@@ -20,6 +20,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -76,7 +77,7 @@ class ItemRequestControllerTest {
                 .build();
 
         Mockito.when(itemRequestService.createRequest(firstUser.getId(), firstItemRequestDto))
-                .thenReturn(firstItemRequest);
+                .thenReturn(ItemRequestMapper.mapToItemRequestDto(firstItemRequest));
 
         mockMvc.perform(post("/requests")
                         .header("X-Sharer-User-Id", String.valueOf(firstUser.getId()))
@@ -95,7 +96,7 @@ class ItemRequestControllerTest {
         ItemRequestDto itemRequestDto = ItemRequestMapper.mapToItemRequestDto(firstItemRequest);
 
         Mockito.when(itemRequestService.getRequestsByRequestor(firstUser.getId()))
-                .thenReturn(List.of(firstItemRequest));
+                .thenReturn(List.of(ItemRequestMapper.mapToItemRequestDto(firstItemRequest)));
 
 
         mockMvc.perform(get("/requests")
@@ -112,7 +113,7 @@ class ItemRequestControllerTest {
         ItemRequestDto itemRequestDto = ItemRequestMapper.mapToItemRequestDto(firstItemRequest);
 
         Mockito.when(itemRequestService.getRequestByRequestId(firstUser.getId(), firstItemRequest.getId()))
-                .thenReturn(firstItemRequest);
+                .thenReturn(ItemRequestMapper.mapToItemRequestDto(firstItemRequest));
 
         mockMvc.perform(get("/requests/{requestId}", firstItemRequest.getId())
                         .header("X-Sharer-User-Id", String.valueOf(firstUser.getId())))
@@ -137,7 +138,9 @@ class ItemRequestControllerTest {
         ItemRequestDto secondItemRequestDto = ItemRequestMapper.mapToItemRequestDto(thirdItemRequest);
 
         Mockito.when(itemRequestService.getRequestsWithPagination(secondUser.getId(), 0, 2))
-                .thenReturn(List.of(firstItemRequest, thirdItemRequest));
+                .thenReturn(List.of(firstItemRequest, thirdItemRequest).stream()
+                        .map(ItemRequestMapper::mapToItemRequestDto)
+                        .collect(Collectors.toList()));
 
         mockMvc.perform(get("/requests/all")
                         .header("X-Sharer-User-Id", String.valueOf(secondUser.getId()))

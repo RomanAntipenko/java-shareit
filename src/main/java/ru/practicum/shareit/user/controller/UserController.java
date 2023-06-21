@@ -12,7 +12,6 @@ import ru.practicum.shareit.user.validations.FirstlyUserValidation;
 import ru.practicum.shareit.user.validations.SecondaryUserValidation;
 
 import java.util.Collection;
-import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @RestController
@@ -25,9 +24,7 @@ public class UserController {
     @GetMapping
     public Collection<UserDto> getUsers() {
         log.info("Вызван метод получения списка пользователей, в UserController");
-        return userService.getAllUsers().stream()
-                .map(UserMapper::mapToDto)
-                .collect(Collectors.toList());
+        return userService.getAllUsers();
     }
 
     @PostMapping
@@ -35,7 +32,7 @@ public class UserController {
             SecondaryUserValidation.class}) @RequestBody UserDto userDto) {
         log.info("Вызван метод создания пользователя, в UserController");
         User user = UserMapper.mapToUser(userDto);
-        return UserMapper.mapToDto(userService.createUser(user));
+        return userService.createUser(user);
     }
 
     @PatchMapping("/{userId}")
@@ -43,13 +40,13 @@ public class UserController {
                              @Validated(SecondaryUserValidation.class) @RequestBody UserDto userDto) {
         log.info("Вызван метод обновления пользователя, в UserController");
         User user = UserMapper.mapToUser(userId, userDto);
-        return UserMapper.mapToDto(userService.updateUser(user));
+        return userService.updateUser(user);
     }
 
     @GetMapping("/{userId}")
     public UserDto getUserById(@PathVariable("userId") long userId) {
         log.info("Вызван метод получения пользователя, в UserController");
-        return UserMapper.mapToDto(userService.getUser(userId));
+        return userService.getUser(userId);
     }
 
     @DeleteMapping("/{userId}")

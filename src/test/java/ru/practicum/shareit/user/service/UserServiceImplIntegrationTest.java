@@ -9,11 +9,13 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
 import ru.practicum.shareit.user.dto.UserDto;
+import ru.practicum.shareit.user.dto.UserMapper;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 
 import javax.transaction.Transactional;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Transactional
 @SpringBootTest
@@ -52,13 +54,16 @@ class UserServiceImplIntegrationTest {
         User secondSavedUser = userRepository.save(secondUser);
         User thirdSavedUser = userRepository.save(thirdUser);
 
-        Assertions.assertEquals(List.of(firstSavedUser, secondSavedUser, thirdSavedUser), userService.getAllUsers());
+        Assertions.assertEquals(List.of(firstSavedUser, secondSavedUser, thirdSavedUser).stream()
+                        .map(UserMapper::mapToDto)
+                        .collect(Collectors.toList()),
+                userService.getAllUsers());
     }
 
     @Test
     void createUser() {
         User firstSavedUser = userRepository.save(firstUser);
-        Assertions.assertEquals(firstSavedUser, userService.createUser(firstUser));
+        Assertions.assertEquals(UserMapper.mapToDto(firstSavedUser), userService.createUser(firstUser));
     }
 
     @Test
@@ -68,13 +73,13 @@ class UserServiceImplIntegrationTest {
         userUpdate.setName("Ivan");
         User firstSavedUser = userRepository.save(firstUser);
         firstSavedUser.setName("Ivan");
-        Assertions.assertEquals(firstSavedUser, userService.updateUser(userUpdate));
+        Assertions.assertEquals(UserMapper.mapToDto(firstSavedUser), userService.updateUser(userUpdate));
     }
 
     @Test
     void getUser() {
         User firstSavedUser = userRepository.save(firstUser);
-        Assertions.assertEquals(userService.getUser(firstSavedUser.getId()), firstSavedUser);
+        Assertions.assertEquals(userService.getUser(firstSavedUser.getId()), UserMapper.mapToDto(firstSavedUser));
     }
 
     @Test

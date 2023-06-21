@@ -87,7 +87,7 @@ class BookingServiceImplIntegrationTest {
         Booking booking = BookingMapper.mapToBooking(secondSavedUser, firstSavedItem, bookingDto);
         booking.setState(BookingState.WAITING);
         booking.setId(1L);
-        Assertions.assertEquals(booking, bookingService.createBooking(secondSavedUser.getId(), bookingDto));
+        Assertions.assertEquals(BookingMapper.mapToBookingDto(booking), bookingService.createBooking(secondSavedUser.getId(), bookingDto));
     }
 
     @Test
@@ -97,10 +97,10 @@ class BookingServiceImplIntegrationTest {
         firstItem.setOwner(firstSavedUser);
         Item firstSavedItem = itemRepository.save(firstItem);
         bookingDto.setItemId(firstSavedItem.getId());
-        Booking booking = bookingService.createBooking(secondSavedUser.getId(), bookingDto);
-        Booking actual = bookingService.acceptOrDeclineBooking(
+        BookingDto booking = bookingService.createBooking(secondSavedUser.getId(), bookingDto);
+        BookingDto actual = bookingService.acceptOrDeclineBooking(
                 firstSavedUser.getId(), booking.getId(), true);
-        booking.setState(BookingState.APPROVED);
+        booking.setStatus(BookingState.APPROVED);
         Assertions.assertEquals(booking, actual);
     }
 
@@ -111,8 +111,8 @@ class BookingServiceImplIntegrationTest {
         firstItem.setOwner(firstSavedUser);
         Item firstSavedItem = itemRepository.save(firstItem);
         bookingDto.setItemId(firstSavedItem.getId());
-        Booking booking = bookingService.createBooking(secondSavedUser.getId(), bookingDto);
-        Booking bookingAccepted = bookingService.acceptOrDeclineBooking(
+        BookingDto booking = bookingService.createBooking(secondSavedUser.getId(), bookingDto);
+        BookingDto bookingAccepted = bookingService.acceptOrDeclineBooking(
                 firstSavedUser.getId(), booking.getId(), true);
 
         Assertions.assertEquals(
@@ -128,10 +128,10 @@ class BookingServiceImplIntegrationTest {
         firstItem.setOwner(firstSavedUser);
         Item firstSavedItem = itemRepository.save(firstItem);
         bookingDto.setItemId(firstSavedItem.getId());
-        Booking booking = bookingService.createBooking(secondSavedUser.getId(), bookingDto);
-        Booking bookingAccepted = bookingService.acceptOrDeclineBooking(
+        BookingDto booking = bookingService.createBooking(secondSavedUser.getId(), bookingDto);
+        BookingDto bookingAccepted = bookingService.acceptOrDeclineBooking(
                 firstSavedUser.getId(), booking.getId(), true);
-        List<Booking> bookings = List.of(bookingAccepted);
+        List<BookingDto> bookings = List.of(bookingAccepted);
 
         Assertions.assertEquals(bookings, bookingService.getAllBookingsForUser(
                 firstUser.getId(), "ALL", true, 0, 2));

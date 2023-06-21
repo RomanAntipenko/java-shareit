@@ -32,6 +32,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @ExtendWith(MockitoExtension.class)
 class BookingServiceImplUnitTest {
@@ -152,7 +153,8 @@ class BookingServiceImplUnitTest {
         Mockito.when(bookingRepository.save(lastSecondBooking))
                 .thenReturn(bookingAfterSave);
 
-        Assertions.assertEquals(bookingAfterSave, bookingService.createBooking(secondUser.getId(), bookingDto));
+        Assertions.assertEquals(BookingMapper.mapToBookingDto(bookingAfterSave),
+                bookingService.createBooking(secondUser.getId(), bookingDto));
         Mockito.verify(bookingRepository, Mockito.times(1)).save(lastSecondBooking);
     }
 
@@ -278,7 +280,7 @@ class BookingServiceImplUnitTest {
         Mockito.when(bookingRepository.save(nextSecondBooking))
                 .thenReturn(bookingAfterSave);
 
-        Assertions.assertEquals(bookingAfterSave, bookingService.acceptOrDeclineBooking(
+        Assertions.assertEquals(BookingMapper.mapToBookingDto(bookingAfterSave), bookingService.acceptOrDeclineBooking(
                 firstUser.getId(), nextSecondBooking.getId(), true));
         Mockito.verify(bookingRepository, Mockito.times(1)).save(nextSecondBooking);
     }
@@ -300,7 +302,7 @@ class BookingServiceImplUnitTest {
         Mockito.when(bookingRepository.save(nextSecondBooking))
                 .thenReturn(bookingAfterSave);
 
-        Assertions.assertEquals(bookingAfterSave, bookingService.acceptOrDeclineBooking(
+        Assertions.assertEquals(BookingMapper.mapToBookingDto(bookingAfterSave), bookingService.acceptOrDeclineBooking(
                 firstUser.getId(), nextSecondBooking.getId(), false));
         Mockito.verify(bookingRepository, Mockito.times(1)).save(nextSecondBooking);
     }
@@ -392,8 +394,8 @@ class BookingServiceImplUnitTest {
         Mockito.when(userRepository.existsById(firstUser.getId()))
                 .thenReturn(true);
 
-        Assertions.assertEquals(nextSecondBooking, bookingService.getBookingForOwnerOrBooker(
-                firstUser.getId(), nextSecondBooking.getId()));
+        Assertions.assertEquals(BookingMapper.mapToBookingDto(nextSecondBooking),
+                bookingService.getBookingForOwnerOrBooker(firstUser.getId(), nextSecondBooking.getId()));
     }
 
     @Test
@@ -449,8 +451,8 @@ class BookingServiceImplUnitTest {
         Mockito.when(bookingRepository.getBookingListByOwnerId(firstUser.getId(), PageRequest.of(0, 2)))
                 .thenReturn(bookings);
 
-        Assertions.assertEquals(bookings, bookingService.getAllBookingsForUser(
-                firstUser.getId(), "ALL", true, 0, 2));
+        Assertions.assertEquals(bookings.stream().map(BookingMapper::mapToBookingDto).collect(Collectors.toList()),
+                bookingService.getAllBookingsForUser(firstUser.getId(), "ALL", true, 0, 2));
         Mockito.verify(bookingRepository, Mockito.times(1)).getBookingListByOwnerId(
                 firstUser.getId(), PageRequest.of(0, 2));
     }
@@ -466,8 +468,8 @@ class BookingServiceImplUnitTest {
                         Mockito.anyLong(), Mockito.any(), Mockito.any()))
                 .thenReturn(bookings);
 
-        Assertions.assertEquals(bookings, bookingService.getAllBookingsForUser(
-                firstUser.getId(), "FUTURE", true, 0, 2));
+        Assertions.assertEquals(bookings.stream().map(BookingMapper::mapToBookingDto).collect(Collectors.toList()),
+                bookingService.getAllBookingsForUser(firstUser.getId(), "FUTURE", true, 0, 2));
         Mockito.verify(bookingRepository, Mockito.times(1)).getAllFutureBookingsByOwnerId(
                 Mockito.anyLong(), Mockito.any(), Mockito.any());
     }
@@ -515,10 +517,11 @@ class BookingServiceImplUnitTest {
                         firstUser.getId(), BookingState.WAITING, PageRequest.of(0, 2)))
                 .thenReturn(bookings);
 
-        Assertions.assertEquals(bookings, bookingService.getAllBookingsForUser(
-                firstUser.getId(), "WAITING", true, 0, 2));
-        Mockito.verify(bookingRepository, Mockito.times(1)).getAllByItemOwnerIdAndStateOrderByStartDesc(
-                firstUser.getId(), BookingState.WAITING, PageRequest.of(0, 2));
+        Assertions.assertEquals(bookings.stream().map(BookingMapper::mapToBookingDto).collect(Collectors.toList()),
+                bookingService.getAllBookingsForUser(firstUser.getId(), "WAITING", true, 0, 2));
+        Mockito.verify(bookingRepository, Mockito.times(1))
+                .getAllByItemOwnerIdAndStateOrderByStartDesc(firstUser.getId(), BookingState.WAITING,
+                        PageRequest.of(0, 2));
     }
 
     @Test
@@ -548,8 +551,8 @@ class BookingServiceImplUnitTest {
         Mockito.when(bookingRepository.getBookingListByBookerId(secondUser.getId(), PageRequest.of(0, 2)))
                 .thenReturn(bookings);
 
-        Assertions.assertEquals(bookings, bookingService.getAllBookingsForUser(
-                secondUser.getId(), "ALL", false, 0, 2));
+        Assertions.assertEquals(bookings.stream().map(BookingMapper::mapToBookingDto).collect(Collectors.toList()),
+                bookingService.getAllBookingsForUser(secondUser.getId(), "ALL", false, 0, 2));
         Mockito.verify(bookingRepository, Mockito.times(1)).getBookingListByBookerId(
                 secondUser.getId(), PageRequest.of(0, 2));
     }
@@ -565,8 +568,8 @@ class BookingServiceImplUnitTest {
                         Mockito.anyLong(), Mockito.any(), Mockito.any()))
                 .thenReturn(bookings);
 
-        Assertions.assertEquals(bookings, bookingService.getAllBookingsForUser(
-                secondUser.getId(), "FUTURE", false, 0, 2));
+        Assertions.assertEquals(bookings.stream().map(BookingMapper::mapToBookingDto).collect(Collectors.toList()),
+                bookingService.getAllBookingsForUser(secondUser.getId(), "FUTURE", false, 0, 2));
         Mockito.verify(bookingRepository, Mockito.times(1)).getAllFutureBookingsByBookerId(
                 Mockito.anyLong(), Mockito.any(), Mockito.any());
     }
@@ -614,10 +617,11 @@ class BookingServiceImplUnitTest {
                         secondUser.getId(), BookingState.WAITING, PageRequest.of(0, 2)))
                 .thenReturn(bookings);
 
-        Assertions.assertEquals(bookings, bookingService.getAllBookingsForUser(
-                secondUser.getId(), "WAITING", false, 0, 2));
-        Mockito.verify(bookingRepository, Mockito.times(1)).getAllByBookerIdAndStateOrderByStartDesc(
-                secondUser.getId(), BookingState.WAITING, PageRequest.of(0, 2));
+        Assertions.assertEquals(bookings.stream().map(BookingMapper::mapToBookingDto).collect(Collectors.toList()),
+                bookingService.getAllBookingsForUser(secondUser.getId(), "WAITING", false, 0, 2));
+        Mockito.verify(bookingRepository, Mockito.times(1))
+                .getAllByBookerIdAndStateOrderByStartDesc(secondUser.getId(), BookingState.WAITING,
+                        PageRequest.of(0, 2));
     }
 
     @Test

@@ -45,7 +45,7 @@ public class ItemServiceImpl implements ItemService {
     private final BookingRepository bookingRepository;
 
     @Override
-    public Item createItem(long userId, ItemDto itemDto) {
+    public ItemDto createItem(long userId, ItemDto itemDto) {
         User userOptional = userRepository.findById(userId)
                 .orElseThrow(() -> new UserIdNotFoundException(String.format("userId: \"%s\" не найден", userId)));
         Item item = ItemMapper.mapToItem(userOptional, itemDto);
@@ -57,11 +57,11 @@ public class ItemServiceImpl implements ItemService {
             itemRequest.getItems().add(item);
             itemRequestRepository.save(itemRequest);
         }
-        return itemRepository.save(item);
+        return ItemMapper.mapToDto(itemRepository.save(item));
     }
 
     @Override
-    public Item updateItem(long userId, long itemId, ItemDto itemDto) {
+    public ItemDto updateItem(long userId, long itemId, ItemDto itemDto) {
         User userOptional = userRepository.findById(userId)
                 .orElseThrow(() -> new UserIdNotFoundException(String.format("itemId: \"%s\" не найден", userId)));
         Item itemOptional = itemRepository.findById(itemId)
@@ -76,7 +76,7 @@ public class ItemServiceImpl implements ItemService {
         if (item.getDescription() != null) {
             itemOptional.setDescription(item.getDescription());
         }
-        return itemRepository.save(itemOptional);
+        return ItemMapper.mapToDto(itemRepository.save(itemOptional));
     }
 
     @Override
@@ -143,7 +143,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public Collection<Item> searchItem(String text, Integer from, Integer size) {
+    public Collection<ItemDto> searchItem(String text, Integer from, Integer size) {
         if (text.isEmpty()) {
             return Collections.emptyList();
         }
@@ -153,13 +153,17 @@ public class ItemServiceImpl implements ItemService {
             }
             int page = from / size;
             Pageable pageable = PageRequest.of(page, size);
-            return itemRepository.search(text, pageable);
+            return itemRepository.search(text, pageable).stream()
+                    .map(ItemMapper::mapToDto)
+                    .collect(Collectors.toList());
         }
-        return itemRepository.search(text, Pageable.unpaged());
+        return itemRepository.search(text, Pageable.unpaged()).stream()
+                .map(ItemMapper::mapToDto)
+                .collect(Collectors.toList());
     }
 
     @Override
-    public Comment postComment(long userId, long itemId, CommentDto commentDto) {
+    public CommentDto postComment(long userId, long itemId, CommentDto commentDto) {
         User userOptional = userRepository.findById(userId)
                 .orElseThrow(() -> new UserIdNotFoundException(String.format("userId: \"%s\" не найден", userId)));
         Item itemOptional = itemRepository.findById(itemId)
@@ -180,6 +184,6 @@ public class ItemServiceImpl implements ItemService {
                     "поэтому невозможно написать комментарий");
         }
         Comment savedComment = commentRepository.save(comment);
-        return savedComment;
+        return CommentMapper.mapToCommentDto(savedComment);
     }
 }

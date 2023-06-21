@@ -156,10 +156,10 @@ class ItemServiceImplUnitTest {
         Mockito.when(itemRepository.save(firstItem))
                 .thenReturn(itemAfterSave);
 
-        Item actual = itemService.createItem(firstUser.getId(), itemDto);
+        ItemDto actual = itemService.createItem(firstUser.getId(), itemDto);
 
         Mockito.verify(itemRepository, Mockito.times(1)).save(firstItem);
-        Assertions.assertEquals(actual, itemAfterSave);
+        Assertions.assertEquals(actual, ItemMapper.mapToDto(itemAfterSave));
     }
 
     @Test
@@ -213,10 +213,10 @@ class ItemServiceImplUnitTest {
         Mockito.when(itemRepository.save(firstItem))
                 .thenReturn(itemAfterSave);
 
-        Item actual = itemService.createItem(firstUser.getId(), itemDto);
+        ItemDto actual = itemService.createItem(firstUser.getId(), itemDto);
 
         Mockito.verify(itemRepository, Mockito.times(1)).save(firstItem);
-        Assertions.assertEquals(actual, itemAfterSave);
+        Assertions.assertEquals(actual, ItemMapper.mapToDto(itemAfterSave));
     }
 
     @Test
@@ -230,8 +230,10 @@ class ItemServiceImplUnitTest {
                 .thenReturn(Optional.of(firstUser));
         Mockito.when(itemRepository.findById(firstItem.getId()))
                 .thenReturn(Optional.of(firstItem));
+        Mockito.when(itemRepository.save(firstItem))
+                .thenReturn(firstItem);
 
-        Item actual = itemService.updateItem(firstUser.getId(), firstItem.getId(), itemDto);
+        ItemDto actual = itemService.updateItem(firstUser.getId(), firstItem.getId(), itemDto);
 
         Mockito.verify(itemRepository).save(argumentCaptor.capture());
         Mockito.verify(itemRepository, Mockito.times(1)).save(argumentCaptor.capture());
@@ -444,7 +446,8 @@ class ItemServiceImplUnitTest {
                     }
                     return null;
                 });
-        Assertions.assertEquals(items, itemService.searchItem(text, null, null));
+        Assertions.assertEquals(items.stream().map(ItemMapper::mapToDto).collect(Collectors.toList()),
+                itemService.searchItem(text, null, null));
         Assertions.assertEquals(Collections.emptyList(), itemService.searchItem("", null, null));
     }
 
@@ -481,7 +484,7 @@ class ItemServiceImplUnitTest {
         Mockito.when(commentRepository.save(Mockito.any()))
                 .thenReturn(savedComment);
 
-        Assertions.assertEquals(savedComment, itemService.postComment(
+        Assertions.assertEquals(CommentMapper.mapToCommentDto(savedComment), itemService.postComment(
                 2L, 1L, commentDto));
         Mockito.verify(commentRepository, Mockito.times(1)).save(Mockito.any());
     }

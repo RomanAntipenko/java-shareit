@@ -11,6 +11,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.practicum.shareit.booking.dto.BookingDto;
+import ru.practicum.shareit.booking.dto.BookingMapper;
 import ru.practicum.shareit.booking.enums.BookingState;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.service.BookingService;
@@ -20,6 +21,7 @@ import ru.practicum.shareit.user.model.User;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -86,7 +88,7 @@ class BookingControllerTest {
                 .build();
 
         Mockito.when(bookingService.createBooking(firstUser.getId(), bookingDto))
-                .thenReturn(bookingAfterSave);
+                .thenReturn(BookingMapper.mapToBookingDto(bookingAfterSave));
 
         mockMvc.perform(post("/bookings")
                         .header("X-Sharer-User-Id", String.valueOf(firstUser.getId()))
@@ -104,7 +106,7 @@ class BookingControllerTest {
     void approveOrCancelBooking() {
         bookingAfterSave.setState(BookingState.APPROVED);
         Mockito.when(bookingService.acceptOrDeclineBooking(firstUser.getId(), bookingAfterSave.getId(), true))
-                .thenReturn(bookingAfterSave);
+                .thenReturn(BookingMapper.mapToBookingDto(bookingAfterSave));
 
         mockMvc.perform(patch("/bookings/{bookingId}", bookingAfterSave.getId())
                         .header("X-Sharer-User-Id", String.valueOf(firstUser.getId()))
@@ -120,7 +122,7 @@ class BookingControllerTest {
     @Test
     void getBookingForOwnerOrBooker() {
         Mockito.when(bookingService.getBookingForOwnerOrBooker(firstUser.getId(), bookingAfterSave.getId()))
-                .thenReturn(bookingAfterSave);
+                .thenReturn(BookingMapper.mapToBookingDto(bookingAfterSave));
 
         mockMvc.perform(get("/bookings/{bookingId}", bookingAfterSave.getId())
                         .header("X-Sharer-User-Id", String.valueOf(firstUser.getId())))
@@ -149,7 +151,9 @@ class BookingControllerTest {
         bookingAfterSaveSecond.setId(2L);
 
         Mockito.when(bookingService.getAllBookingsForUser(firstUser.getId(), "ALL", false, 0, 2))
-                .thenReturn(List.of(bookingAfterSave, bookingAfterSaveSecond));
+                .thenReturn(List.of(bookingAfterSave, bookingAfterSaveSecond).stream()
+                        .map(BookingMapper::mapToBookingDto)
+                        .collect(Collectors.toList()));
 
         mockMvc.perform(get("/bookings")
                         .header("X-Sharer-User-Id", String.valueOf(firstUser.getId()))
@@ -183,7 +187,7 @@ class BookingControllerTest {
         bookingAfterSaveSecond.setId(2L);
 
         Mockito.when(bookingService.getAllBookingsForUser(firstUser.getId(), "ALL", true, 0, 2))
-                .thenReturn(List.of(bookingAfterSaveSecond));
+                .thenReturn(List.of(BookingMapper.mapToBookingDto(bookingAfterSaveSecond)));
 
         mockMvc.perform(get("/bookings/owner")
                         .header("X-Sharer-User-Id", String.valueOf(firstUser.getId()))

@@ -5,16 +5,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.item.dto.CommentDto;
-import ru.practicum.shareit.item.dto.CommentMapper;
 import ru.practicum.shareit.item.dto.ItemDto;
-import ru.practicum.shareit.item.dto.ItemMapper;
 import ru.practicum.shareit.item.service.ItemService;
 import ru.practicum.shareit.item.validations.FirstlyItemValidation;
 import ru.practicum.shareit.item.validations.SecondaryItemValidation;
 
 import javax.validation.Valid;
 import java.util.Collection;
-import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @RestController
@@ -28,7 +25,7 @@ public class ItemController {
                               @Validated({SecondaryItemValidation.class,
                                       FirstlyItemValidation.class}) @RequestBody ItemDto itemDto) {
         log.info("Вызван метод создания предмета, в ItemController");
-        return ItemMapper.mapToDto(itemService.createItem(userId, itemDto));
+        return itemService.createItem(userId, itemDto);
     }
 
     @PatchMapping("/{itemId}")
@@ -36,7 +33,7 @@ public class ItemController {
                              @PathVariable long itemId,
                              @RequestBody ItemDto itemDto) {
         log.info("Вызван метод обновления предмета, в ItemController");
-        return ItemMapper.mapToDto(itemService.updateItem(userId, itemId, itemDto));
+        return itemService.updateItem(userId, itemId, itemDto);
     }
 
     @GetMapping
@@ -59,9 +56,7 @@ public class ItemController {
                                              @RequestParam(required = false) Integer from,
                                              @RequestParam(required = false) Integer size) {
         log.info("Вызван метод поиска предмета, в ItemController");
-        return itemService.searchItem(text, from, size).stream()
-                .map(ItemMapper::mapToDto)
-                .collect(Collectors.toList());
+        return itemService.searchItem(text, from, size);
     }
 
     @PostMapping("/{itemId}/comment")
@@ -69,6 +64,6 @@ public class ItemController {
                                     @PathVariable long itemId,
                                     @Valid @RequestBody CommentDto commentDto) {
         log.info("Вызван метод добавления отзыва после бронирования, в ItemController");
-        return CommentMapper.mapToCommentDto(itemService.postComment(userId, itemId, commentDto));
+        return itemService.postComment(userId, itemId, commentDto);
     }
 }

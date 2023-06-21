@@ -20,6 +20,7 @@ import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
@@ -30,16 +31,16 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     private final ItemRequestRepository itemRequestRepository;
 
     @Override
-    public ItemRequest createRequest(long userId, ItemRequestDto itemRequestDto) {
+    public ItemRequestDto createRequest(long userId, ItemRequestDto itemRequestDto) {
         User user = userRepository.findById(userId).orElseThrow(() -> new UserIdNotFoundException(
                 String.format("userId: \"%s\" не найден", userId)));
         ItemRequest itemRequest = ItemRequestMapper.mapToItemRequest(user, Collections.emptyList(),
                 LocalDateTime.now(), itemRequestDto);
-        return itemRequestRepository.save(itemRequest);
+        return ItemRequestMapper.mapToItemRequestDto(itemRequestRepository.save(itemRequest));
     }
 
     @Override
-    public Collection<ItemRequest> getRequestsByRequestor(long userId) {
+    public Collection<ItemRequestDto> getRequestsByRequestor(long userId) {
         if (!userRepository.existsById(userId)) {
             log.debug("User id not found in getRequestsByRequestor method");
             throw new UserIdNotFoundException(String.format("userId: \"%s\" не найден", userId));
@@ -48,22 +49,24 @@ public class ItemRequestServiceImpl implements ItemRequestService {
         if (itemRequests.isEmpty()) {
             return Collections.emptyList();
         }
-        return itemRequests;
+        return itemRequests.stream()
+                .map(ItemRequestMapper::mapToItemRequestDto)
+                .collect(Collectors.toList());
     }
 
     @Override
-    public ItemRequest getRequestByRequestId(long userId, long requestId) {
+    public ItemRequestDto getRequestByRequestId(long userId, long requestId) {
         if (!userRepository.existsById(userId)) {
             log.debug("User id not found in getRequestByRequestId method");
             throw new UserIdNotFoundException(String.format("userId: \"%s\" не найден", userId));
         }
         ItemRequest itemRequest = itemRequestRepository.findById(requestId).orElseThrow(() ->
                 new RequestIdNotFoundException(String.format("requestId: \"%s\" не найден", requestId)));
-        return itemRequest;
+        return ItemRequestMapper.mapToItemRequestDto(itemRequest);
     }
 
     @Override
-    public Collection<ItemRequest> getRequestsWithPagination(long userId, Integer from, Integer size) {
+    public Collection<ItemRequestDto> getRequestsWithPagination(long userId, Integer from, Integer size) {
         Sort sort = Sort.by(Sort.Direction.DESC, "created");
         List<ItemRequest> itemRequestList;
         if (from != null && size != null) {
@@ -79,6 +82,8 @@ public class ItemRequestServiceImpl implements ItemRequestService {
         if (itemRequestList.isEmpty()) {
             return Collections.emptyList();
         }
-        return itemRequestList;
+        return itemRequestList.stream()
+                .map(ItemRequestMapper::mapToItemRequestDto)
+                .collect(Collectors.toList());
     }
 }

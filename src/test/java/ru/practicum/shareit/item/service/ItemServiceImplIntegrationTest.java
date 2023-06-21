@@ -20,6 +20,7 @@ import ru.practicum.shareit.item.dto.ItemMapper;
 import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.CommentRepository;
+import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.request.repository.ItemRequestRepository;
 import ru.practicum.shareit.user.dto.UserDto;
@@ -45,6 +46,7 @@ class ItemServiceImplIntegrationTest {
     private final ItemRequestRepository itemRequestRepository;
     private final BookingRepository bookingRepository;
     private final CommentRepository commentRepository;
+    private final ItemRepository itemRepository;
     User firstUser;
     UserDto firstUserDto;
     User secondUser;
@@ -95,7 +97,8 @@ class ItemServiceImplIntegrationTest {
         User firstSavedUser = userRepository.save(firstUser);
         Item item = ItemMapper.mapToItem(firstSavedUser, firstItemDto);
         item.setId(1L);
-        Assertions.assertEquals(item, itemService.createItem(firstSavedUser.getId(), firstItemDto));
+        Assertions.assertEquals(ItemMapper.mapToDto(item),
+                itemService.createItem(firstSavedUser.getId(), firstItemDto));
     }
 
     @Test
@@ -110,13 +113,14 @@ class ItemServiceImplIntegrationTest {
         itemRequestRepository.save(firstSavedItemRequest);
         item.setId(1L);
 
-        Assertions.assertEquals(item, itemService.createItem(firstSavedUser.getId(), firstItemDto));
+        Assertions.assertEquals(ItemMapper.mapToDto(item),
+                itemService.createItem(firstSavedUser.getId(), firstItemDto));
     }
 
     @Test
     void updateItem() {
         User firstSavedUser = userRepository.save(firstUser);
-        Item firstSavedItem = itemService.createItem(firstSavedUser.getId(), firstItemDto);
+        ItemDto firstSavedItem = itemService.createItem(firstSavedUser.getId(), firstItemDto);
         ItemDto update = ItemDto.builder()
                 .name("mouse")
                 .description("now its mouse")
@@ -127,7 +131,7 @@ class ItemServiceImplIntegrationTest {
         item.setDescription(update.getDescription());
         item.setAvailable(update.getAvailable());
         item.setId(1L);
-        Assertions.assertEquals(item, itemService.updateItem(firstSavedUser.getId(), firstSavedItem.getId(), update));
+        Assertions.assertEquals(ItemMapper.mapToDto(item), itemService.updateItem(firstSavedUser.getId(), firstSavedItem.getId(), update));
     }
 
     @Test
@@ -139,10 +143,10 @@ class ItemServiceImplIntegrationTest {
                 .name("Beer")
                 .available(true)
                 .build();
-        Item firstSavedItem = itemService.createItem(firstSavedUser.getId(), firstItemDto);
-        Item secondSavedItem = itemService.createItem(secondSavedUser.getId(), secondItemDto);
-        List<Item> items = List.of(secondSavedItem);
-        List<ItemDto> itemsDto = items.stream()
+        ItemDto firstSavedItemDto = itemService.createItem(firstSavedUser.getId(), firstItemDto);
+        Item secondSavedItem = itemRepository.save(ItemMapper.mapToItem(secondSavedUser, secondItemDto));
+
+        List<ItemDto> items = List.of(secondSavedItem).stream()
                 .map(ItemMapper::mapToDto)
                 .collect(Collectors.toList());
         BookingDto bookingDto = BookingDto.builder()
@@ -152,9 +156,9 @@ class ItemServiceImplIntegrationTest {
         Booking booking = BookingMapper.mapToBooking(firstSavedUser, secondSavedItem, bookingDto);
         booking.setState(BookingState.APPROVED);
         Booking bookingAfterSaveAndApproved = bookingRepository.save(booking);
-        itemsDto.get(0).setNextBooking(BookingMapper.mapToShortBooking(bookingAfterSaveAndApproved));
+        items.get(0).setNextBooking(BookingMapper.mapToShortBooking(bookingAfterSaveAndApproved));
 
-        Assertions.assertEquals(itemsDto, itemService.getAllItemsByOwner(secondSavedUser.getId(), 0, 2));
+        Assertions.assertEquals(items, itemService.getAllItemsByOwner(secondSavedUser.getId(), 0, 2));
     }
 
     @Test
@@ -166,8 +170,9 @@ class ItemServiceImplIntegrationTest {
                 .name("Beer")
                 .available(true)
                 .build();
-        Item firstSavedItem = itemService.createItem(firstSavedUser.getId(), firstItemDto);
-        Item secondSavedItem = itemService.createItem(secondSavedUser.getId(), secondItemDto);
+        ItemDto firstSavedItemDto = itemService.createItem(firstSavedUser.getId(), firstItemDto);
+        Item secondSavedItem = itemRepository.save(ItemMapper.mapToItem(secondSavedUser, secondItemDto));
+
         ItemDto secondSavedItemDto = ItemMapper.mapToDto(secondSavedItem);
         BookingDto bookingDto = BookingDto.builder()
                 .start(LocalDateTime.now().minusMonths(5))
@@ -196,10 +201,10 @@ class ItemServiceImplIntegrationTest {
                 .name("Beer")
                 .available(true)
                 .build();
-        Item firstSavedItem = itemService.createItem(firstSavedUser.getId(), firstItemDto);
-        Item secondSavedItem = itemService.createItem(secondSavedUser.getId(), secondItemDto);
+        ItemDto firstSavedItemDto = itemService.createItem(firstSavedUser.getId(), firstItemDto);
+        Item secondSavedItem = itemRepository.save(ItemMapper.mapToItem(secondSavedUser, secondItemDto));
         String text = "Bee";
-        List<Item> items = List.of(secondSavedItem);
+        List<ItemDto> items = List.of(ItemMapper.mapToDto(secondSavedItem));
         Assertions.assertEquals(items, itemService.searchItem(text, 0, 2));
     }
 
@@ -212,8 +217,9 @@ class ItemServiceImplIntegrationTest {
                 .name("Beer")
                 .available(true)
                 .build();
-        Item firstSavedItem = itemService.createItem(firstSavedUser.getId(), firstItemDto);
-        Item secondSavedItem = itemService.createItem(secondSavedUser.getId(), secondItemDto);
+        ItemDto firstSavedItemDto = itemService.createItem(firstSavedUser.getId(), firstItemDto);
+
+        Item secondSavedItem = itemRepository.save(ItemMapper.mapToItem(secondSavedUser, secondItemDto));
 
         BookingDto bookingDto = BookingDto.builder()
                 .start(LocalDateTime.now().minusMonths(5))
@@ -227,12 +233,12 @@ class ItemServiceImplIntegrationTest {
                 .build();
         Comment comment = CommentMapper.mapToComment(firstSavedUser, secondSavedItem, commentDto, LocalDateTime.now());
         comment.setId(1L);
-        Comment actual = itemService.postComment(
+        CommentDto actual = itemService.postComment(
                 firstSavedUser.getId(), secondSavedItem.getId(), commentDto);
 
         Assertions.assertEquals(comment.getId(), actual.getId());
         Assertions.assertEquals(comment.getText(), actual.getText());
-        Assertions.assertEquals(comment.getAuthor(), actual.getAuthor());
+        Assertions.assertEquals(comment.getAuthor().getName(), actual.getAuthorName());
         Assertions.assertEquals(comment.getCreated().truncatedTo(ChronoUnit.MINUTES),
                 actual.getCreated().truncatedTo(ChronoUnit.MINUTES));
     }

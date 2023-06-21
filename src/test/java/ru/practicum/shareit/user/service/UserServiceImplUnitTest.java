@@ -6,12 +6,15 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
+import ru.practicum.shareit.user.dto.UserDto;
+import ru.practicum.shareit.user.dto.UserMapper;
 import ru.practicum.shareit.user.exceptions.UserIdNotFoundException;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @ExtendWith(MockitoExtension.class)
 class UserServiceImplUnitTest {
@@ -47,7 +50,8 @@ class UserServiceImplUnitTest {
         Mockito.when(userRepository.findAll())
                 .thenReturn(expectedUsers);
 
-        Assertions.assertEquals(expectedUsers, userService.getAllUsers());
+        Assertions.assertEquals(expectedUsers.stream().map(UserMapper::mapToDto).collect(Collectors.toList()),
+                userService.getAllUsers());
     }
 
     @Test
@@ -60,7 +64,7 @@ class UserServiceImplUnitTest {
         Mockito.when(userRepository.save(firstUser))
                 .thenReturn(firstUserAfterSave);
 
-        Assertions.assertEquals(firstUserAfterSave, userService.createUser(firstUser));
+        Assertions.assertEquals(UserMapper.mapToDto(firstUserAfterSave), userService.createUser(firstUser));
         Mockito.verify(userRepository).save(firstUser);
         Mockito.verify(userRepository, Mockito.times(1)).save(firstUser);
     }
@@ -74,15 +78,20 @@ class UserServiceImplUnitTest {
 
         Mockito.when(userRepository.findById(1L))
                 .thenReturn(Optional.of(secondUser));
+        secondUser.setId(1L);
+        secondUser.setEmail(secondUserToUpdate.getEmail());
+        secondUser.setName(secondUserToUpdate.getName());
+        Mockito.when(userRepository.save(secondUser))
+                .thenReturn(secondUser);
 
-        User actual = userService.updateUser(secondUserToUpdate);
+        UserDto actual = userService.updateUser(secondUserToUpdate);
 
         Mockito.verify(userRepository).save(argumentCaptor.capture());
         Mockito.verify(userRepository, Mockito.times(1)).save(argumentCaptor.capture());
         User expected = argumentCaptor.getValue();
 
         Assertions.assertEquals(secondUserToUpdate.getName(), expected.getName());
-        Assertions.assertEquals(secondUser.getEmail(), expected.getEmail());
+        Assertions.assertEquals(secondUserToUpdate.getEmail(), expected.getEmail());
     }
 
     @Test
@@ -104,7 +113,7 @@ class UserServiceImplUnitTest {
         Mockito.when(userRepository.findById(Mockito.anyLong()))
                 .thenReturn(Optional.of(firstUser));
 
-        Assertions.assertEquals(firstUser, userService.getUser(1L));
+        Assertions.assertEquals(UserMapper.mapToDto(firstUser), userService.getUser(1L));
     }
 
     @Test
