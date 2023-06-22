@@ -4,12 +4,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.booking.dto.BookingDto;
-import ru.practicum.shareit.booking.dto.BookingMapper;
 import ru.practicum.shareit.booking.service.BookingService;
 
 import javax.validation.Valid;
-import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Collection;
 
 @RestController
 @RequiredArgsConstructor
@@ -22,7 +20,7 @@ public class BookingController {
     public BookingDto createBooking(@RequestHeader("X-Sharer-User-Id") long userId,
                                     @RequestBody @Valid BookingDto bookingDto) {
         log.info("Вызван метод создания бронирования, в BookingController");
-        return BookingMapper.mapToBookingDto(bookingService.createBooking(userId, bookingDto));
+        return bookingService.createBooking(userId, bookingDto);
     }
 
     @PatchMapping("/{bookingId}")
@@ -30,31 +28,31 @@ public class BookingController {
                                              @PathVariable long bookingId,
                                              @RequestParam boolean approved) {
         log.info("Вызван метод подтверждения или отмены бронирования, в BookingController");
-        return BookingMapper.mapToBookingDto(bookingService.acceptOrDeclineBooking(userId, bookingId, approved));
+        return bookingService.acceptOrDeclineBooking(userId, bookingId, approved);
     }
 
     @GetMapping("/{bookingId}")
     public BookingDto getBookingForOwnerOrBooker(@RequestHeader("X-Sharer-User-Id") long userId,
                                                  @PathVariable long bookingId) {
         log.info("Вызван метод просмотра бронирования владельцем или клиентом, в BookingController");
-        return BookingMapper.mapToBookingDto(bookingService.getBookingForOwnerOrBooker(userId, bookingId));
+        return bookingService.getBookingForOwnerOrBooker(userId, bookingId);
     }
 
     @GetMapping
-    public List<BookingDto> getAllBookingsForBooker(@RequestHeader("X-Sharer-User-Id") long userId,
-                                                    @RequestParam(defaultValue = "ALL") String state) {
+    public Collection<BookingDto> getAllBookingsForBooker(@RequestHeader("X-Sharer-User-Id") long userId,
+                                                          @RequestParam(defaultValue = "ALL") String state,
+                                                          @RequestParam(required = false) Integer from,
+                                                          @RequestParam(required = false) Integer size) {
         log.info("Вызван метод просмотра списка бронирования для клиента, в BookingController");
-        return bookingService.getAllBookingsForUser(userId, state, false).stream()
-                .map(BookingMapper::mapToBookingDto)
-                .collect(Collectors.toList());
+        return bookingService.getAllBookingsForUser(userId, state, false, from, size);
     }
 
     @GetMapping("/owner")
-    public List<BookingDto> getAllBookingForOwner(@RequestHeader("X-Sharer-User-Id") long userId,
-                                                  @RequestParam(defaultValue = "ALL") String state) {
+    public Collection<BookingDto> getAllBookingForOwner(@RequestHeader("X-Sharer-User-Id") long userId,
+                                                        @RequestParam(defaultValue = "ALL") String state,
+                                                        @RequestParam(required = false) Integer from,
+                                                        @RequestParam(required = false) Integer size) {
         log.info("Вызван метод просмотра списка бронирования для владельца, в BookingController");
-        return bookingService.getAllBookingsForUser(userId, state, true).stream()
-                .map(BookingMapper::mapToBookingDto)
-                .collect(Collectors.toList());
+        return bookingService.getAllBookingsForUser(userId, state, true, from, size);
     }
 }

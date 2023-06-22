@@ -11,22 +11,13 @@ import ru.practicum.shareit.booking.exceptions.InCorrectStatusException;
 import ru.practicum.shareit.booking.exceptions.IncorrectDateException;
 import ru.practicum.shareit.item.exceptions.ItemIdNotFoundException;
 import ru.practicum.shareit.item.exceptions.ItemUnavailableException;
-import ru.practicum.shareit.item.exceptions.OwnerIdMismatchException;
-import ru.practicum.shareit.user.exceptions.EmailAlreadyExistsException;
+import ru.practicum.shareit.request.exceptions.PaginationNotValidException;
+import ru.practicum.shareit.request.exceptions.RequestIdNotFoundException;
 import ru.practicum.shareit.user.exceptions.UserIdNotFoundException;
 
 @RestControllerAdvice
 @Slf4j
 public class ErrorHandler {
-    @ExceptionHandler
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ErrorResponse emailAlreadyExistsHandler(final EmailAlreadyExistsException e) {
-        log.error(e.getMessage() + ". Ошибка: " + e.getClass().getName());
-        return new ErrorResponse(
-                e.getMessage()
-        );
-    }
-
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse userIdNotFoundHandler(final UserIdNotFoundException e) {
@@ -45,14 +36,6 @@ public class ErrorHandler {
         );
     }
 
-    @ExceptionHandler
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ErrorResponse ownerIdMismatchHandler(final OwnerIdMismatchException e) {
-        log.error(e.getMessage() + ". Ошибка: " + e.getClass().getName());
-        return new ErrorResponse(
-                e.getMessage()
-        );
-    }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
@@ -98,4 +81,23 @@ public class ErrorHandler {
                 e.getMessage()
         );
     }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorResponse requestIdNotFoundHandler(final RequestIdNotFoundException e) {
+        log.error(e.getMessage() + ". Ошибка: " + e.getClass().getName());
+        return new ErrorResponse(
+                e.getMessage()
+        );
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse paginationNotValidHandler(final PaginationNotValidException e) {
+        log.error(e.getMessage() + ". Ошибка: " + e.getClass().getName());
+        return new ErrorResponse(
+                e.getMessage()
+        );
+    }
+
 }

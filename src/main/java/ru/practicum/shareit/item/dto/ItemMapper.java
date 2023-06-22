@@ -7,6 +7,15 @@ import ru.practicum.shareit.user.model.User;
 @UtilityClass
 public class ItemMapper {
     public ItemDto mapToDto(Item item) {
+        if (item.getRequest() != null) {
+            return ItemDto.builder()
+                    .id(item.getId())
+                    .description(item.getDescription())
+                    .name(item.getName())
+                    .available(item.getAvailable())
+                    .requestId(item.getRequest().getId())
+                    .build();
+        }
         return ItemDto.builder()
                 .id(item.getId())
                 .description(item.getDescription())

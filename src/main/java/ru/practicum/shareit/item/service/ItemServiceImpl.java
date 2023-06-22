@@ -2,6 +2,8 @@ package ru.practicum.shareit.item.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.dto.BookingMapper;
 import ru.practicum.shareit.booking.enums.BookingState;
@@ -17,6 +19,10 @@ import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.CommentRepository;
 import ru.practicum.shareit.item.repository.ItemRepository;
+import ru.practicum.shareit.request.exceptions.PaginationNotValidException;
+import ru.practicum.shareit.request.exceptions.RequestIdNotFoundException;
+import ru.practicum.shareit.request.model.ItemRequest;
+import ru.practicum.shareit.request.repository.ItemRequestRepository;
 import ru.practicum.shareit.user.exceptions.UserIdNotFoundException;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
@@ -35,19 +41,27 @@ public class ItemServiceImpl implements ItemService {
     private final CommentRepository commentRepository;
     private final ItemRepository itemRepository;
     private final UserRepository userRepository;
-
+    private final ItemRequestRepository itemRequestRepository;
     private final BookingRepository bookingRepository;
 
     @Override
-    public Item createItem(long userId, ItemDto itemDto) {
+    public ItemDto createItem(long userId, ItemDto itemDto) {
         User userOptional = userRepository.findById(userId)
-                .orElseThrow(() -> new UserIdNotFoundException(String.format("itemId: \"%s\" не найден", userId)));
+                .orElseThrow(() -> new UserIdNotFoundException(String.format("userId: \"%s\" не найден", userId)));
         Item item = ItemMapper.mapToItem(userOptional, itemDto);
-        return itemRepository.save(item);
+        if (itemDto.getRequestId() != null && itemRequestRepository.existsById(itemDto.getRequestId())) { //
+            ItemRequest itemRequest = itemRequestRepository.findById(itemDto.getRequestId()).orElseThrow(() ->
+                    new RequestIdNotFoundException(String.format("requestId: \"%s\" не найден",
+                            itemDto.getRequestId())));
+            item.setRequest(itemRequest);
+            itemRequest.getItems().add(item);
+            itemRequestRepository.save(itemRequest);
+        }
+        return ItemMapper.mapToDto(itemRepository.save(item));
     }
 
     @Override
-    public Item updateItem(long userId, long itemId, ItemDto itemDto) {
+    public ItemDto updateItem(long userId, long itemId, ItemDto itemDto) {
         User userOptional = userRepository.findById(userId)
                 .orElseThrow(() -> new UserIdNotFoundException(String.format("itemId: \"%s\" не найден", userId)));
         Item itemOptional = itemRepository.findById(itemId)
@@ -62,20 +76,33 @@ public class ItemServiceImpl implements ItemService {
         if (item.getDescription() != null) {
             itemOptional.setDescription(item.getDescription());
         }
-        return itemRepository.save(itemOptional);
+        return ItemMapper.mapToDto(itemRepository.save(itemOptional));
     }
 
     @Override
-    public Collection<ItemDto> getAllItemsByOwner(long userId) {
+    public Collection<ItemDto> getAllItemsByOwner(long userId, Integer from, Integer size) {
         if (!userRepository.existsById(userId)) {
             log.debug("User id not found in getAllItemsByOwner method");
             throw new UserIdNotFoundException(String.format("userId: \"%s\" не найден", userId));
         }
-
-        if (itemRepository.findAllByOwnerId(userId) == null) {
+        List<Item> items;
+        if (from != null && size != null) {
+            if (from < 0 || size <= 0) {
+                throw new PaginationNotValidException("Переданы некорректные данные для пагинации");
+            }
+            int page = from / size;
+            Pageable pageable = PageRequest.of(page, size);
+            items = itemRepository.findAllByOwnerId(userId, pageable);
+            List<ItemDto> itemsDto = items.stream()
+                    .map(ItemMapper::mapToDto)
+                    .collect(Collectors.toList());
+            itemsDto.forEach(this::addLastAndNextBookingToItem);
+            return itemsDto;
+        }
+        if (itemRepository.findAllByOwnerId(userId, Pageable.unpaged()) == null) {
             throw new ItemIdNotFoundException(String.format("item у пользователя с \"%s\" не найден", userId));
         }
-        List<ItemDto> itemsDto = itemRepository.findAllByOwnerId(userId).stream()
+        List<ItemDto> itemsDto = itemRepository.findAllByOwnerId(userId, Pageable.unpaged()).stream()
                 .map(ItemMapper::mapToDto)
                 .collect(Collectors.toList());
         itemsDto.forEach(this::addLastAndNextBookingToItem);
@@ -116,13 +143,26 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public Collection<Item> searchItem(String text) {
+    public Collection<ItemDto> searchItem(String text, Integer from, Integer size) {
         if (text.isEmpty()) {
             return Collections.emptyList();
         }
-        return itemRepository.search(text);
+        if (from != null && size != null) {
+            if (from < 0 || size <= 0) {
+                throw new PaginationNotValidException("Переданы некорректные данные для пагинации");
+            }
+            int page = from / size;
+            Pageable pageable = PageRequest.of(page, size);
+            return itemRepository.search(text, pageable).stream()
+                    .map(ItemMapper::mapToDto)
+                    .collect(Collectors.toList());
+        }
+        return itemRepository.search(text, Pageable.unpaged()).stream()
+                .map(ItemMapper::mapToDto)
+                .collect(Collectors.toList());
     }
 
+    @Override
     public CommentDto postComment(long userId, long itemId, CommentDto commentDto) {
         User userOptional = userRepository.findById(userId)
                 .orElseThrow(() -> new UserIdNotFoundException(String.format("userId: \"%s\" не найден", userId)));
