@@ -12,7 +12,7 @@ services:
       - server
     # переменные окружения
     environment:
-      - TZ=Europe/Moscow
+    #  - TZ=Europe/Moscow
       - SHAREIT_SERVER_URL=http://server:9090
   server:
     build: server
@@ -25,7 +25,7 @@ services:
       - db
     # переменные окружения
     environment:
-      - TZ=Europe/Moscow
+    #  - TZ=Europe/Moscow
       - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/postgres
       - SPRING_DATASOURCE_USER=postgres
       - SPRING_DATASOURCE_PASSWORD=Dnf21hlf
@@ -35,7 +35,7 @@ services:
     ports:
       - "6541:5432"
     environment:
-      - TZ=Europe/Moscow
+     # - TZ=Europe/Moscow
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=Dnf21hlf
       - POSTGRES_DB=postgres

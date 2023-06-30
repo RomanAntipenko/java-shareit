@@ -40,7 +40,7 @@ public class ItemController {
         return itemClient.updateItem(userId, itemId, itemDto);
     }
 
-    @GetMapping //пагинаця
+    @GetMapping
     public ResponseEntity<Object> getItemsByOwner(@RequestHeader("X-Sharer-User-Id") long userId,
                                                   @PositiveOrZero @RequestParam(name = "from", defaultValue = "0")
                                                   Integer from,
@@ -57,7 +57,7 @@ public class ItemController {
         return itemClient.getItemById(userId, itemId);
     }
 
-    @GetMapping("/search") //пагинация??
+    @GetMapping("/search")
     public ResponseEntity<Object> getItemByText(@RequestHeader("X-Sharer-User-Id") long userId,
                                                 @RequestParam("text") String text,
                                                 @PositiveOrZero @RequestParam(name = "from", defaultValue = "0")
