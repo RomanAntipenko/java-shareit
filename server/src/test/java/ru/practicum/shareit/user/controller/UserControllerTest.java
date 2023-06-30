@@ -67,7 +67,7 @@ class UserControllerTest {
         mockMvc.perform(post("/users")
                 .contentType("application/json")
                 .content(objectMapper.writeValueAsString(user)));
-        user.setId(1l);
+        user.setId(1L);
         UserDto userPatch = UserDto.builder()
                 .name("bla")
                 .build();
