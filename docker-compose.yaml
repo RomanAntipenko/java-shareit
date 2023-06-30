@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  gateway:
+    build: gateway
+    # образ, из которого должен быть запущен контейнер
+    image: shareit-gateway
+    container_name: shareit-gateway
+    ports:
+      - "8080:8080"
+    depends_on:
+      - server
+    # переменные окружения
+    environment:
+      - TZ=Europe/Moscow
+      - SHAREIT_SERVER_URL=http://server:9090
+  server:
+    build: server
+    image: shareit-server
+    container_name: shareit-server
+    ports:
+      - "9090:9090"
+    # "зависит от",
+    depends_on:
+      - db
+    # переменные окружения
+    environment:
+      - TZ=Europe/Moscow
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/postgres
+      - SPRING_DATASOURCE_USER=postgres
+      - SPRING_DATASOURCE_PASSWORD=Dnf21hlf
+  db:
+    image: postgres:13-alpine
+    container_name: shareit-db
+    ports:
+      - "6541:5432"
+    environment:
+      - TZ=Europe/Moscow
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=Dnf21hlf
+      - POSTGRES_DB=postgres
