@@ -2,12 +2,9 @@ package ru.practicum.shareit.user.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.service.UserService;
-import ru.practicum.shareit.user.validations.FirstlyUserValidation;
-import ru.practicum.shareit.user.validations.SecondaryUserValidation;
 
 import java.util.Collection;
 
@@ -26,8 +23,7 @@ public class UserController {
     }
 
     @PostMapping
-    public UserDto createUser(@Validated({FirstlyUserValidation.class,
-            SecondaryUserValidation.class}) @RequestBody UserDto userDto) {
+    public UserDto createUser(@RequestBody UserDto userDto) {
         log.info("Вызван метод создания пользователя, в UserController");
         /*User user = UserMapper.mapToUser(userDto);*/
         return userService.createUser(userDto);
@@ -35,7 +31,7 @@ public class UserController {
 
     @PatchMapping("/{userId}")
     public UserDto patchUser(@PathVariable("userId") long userId,
-                             @Validated(SecondaryUserValidation.class) @RequestBody UserDto userDto) {
+                             @RequestBody UserDto userDto) {
         log.info("Вызван метод обновления пользователя, в UserController");
         /*User user = UserMapper.mapToUser(userId, userDto);*/
         userDto.setId(userId);

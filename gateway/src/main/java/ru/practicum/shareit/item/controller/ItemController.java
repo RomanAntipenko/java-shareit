@@ -15,6 +15,8 @@ import javax.validation.Valid;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
 
+import static ru.practicum.shareit.ConstantsForGateway.userIdHeader;
+
 
 @RequiredArgsConstructor
 @RestController
@@ -25,7 +27,7 @@ public class ItemController {
     private final ItemClient itemClient;
 
     @PostMapping
-    public ResponseEntity<Object> createItem(@RequestHeader("X-Sharer-User-Id") long userId,
+    public ResponseEntity<Object> createItem(@RequestHeader(userIdHeader) long userId,
                                              @Validated({SecondaryItemValidation.class,
                                                      FirstlyItemValidation.class}) @RequestBody ItemDto itemDto) {
         log.info("Создеам вещь {}, userId={}", itemDto, userId);
@@ -33,7 +35,7 @@ public class ItemController {
     }
 
     @PatchMapping("/{itemId}")
-    public ResponseEntity<Object> patchItem(@RequestHeader("X-Sharer-User-Id") long userId,
+    public ResponseEntity<Object> patchItem(@RequestHeader(userIdHeader) long userId,
                                             @PathVariable long itemId,
                                             @RequestBody ItemDto itemDto) {
         log.info("Обновляем вещь {}, userId={}, itemId={}", itemDto, userId, itemId);
@@ -41,7 +43,7 @@ public class ItemController {
     }
 
     @GetMapping
-    public ResponseEntity<Object> getItemsByOwner(@RequestHeader("X-Sharer-User-Id") long userId,
+    public ResponseEntity<Object> getItemsByOwner(@RequestHeader(userIdHeader) long userId,
                                                   @PositiveOrZero @RequestParam(name = "from", defaultValue = "0")
                                                   Integer from,
                                                   @Positive @RequestParam(name = "size", defaultValue = "10")
@@ -51,14 +53,14 @@ public class ItemController {
     }
 
     @GetMapping("/{itemId}")
-    public ResponseEntity<Object> getItemById(@RequestHeader("X-Sharer-User-Id") long userId,
+    public ResponseEntity<Object> getItemById(@RequestHeader(userIdHeader) long userId,
                                               @PathVariable long itemId) {
         log.info("Получаем вещи по id вещи, userId={}, itemId={}", userId, itemId);
         return itemClient.getItemById(userId, itemId);
     }
 
     @GetMapping("/search")
-    public ResponseEntity<Object> getItemByText(@RequestHeader("X-Sharer-User-Id") long userId,
+    public ResponseEntity<Object> getItemByText(@RequestHeader(userIdHeader) long userId,
                                                 @RequestParam("text") String text,
                                                 @PositiveOrZero @RequestParam(name = "from", defaultValue = "0")
                                                 Integer from,
@@ -69,7 +71,7 @@ public class ItemController {
     }
 
     @PostMapping("/{itemId}/comment")
-    public ResponseEntity<Object> createComment(@RequestHeader("X-Sharer-User-Id") long userId,
+    public ResponseEntity<Object> createComment(@RequestHeader(userIdHeader) long userId,
                                                 @PathVariable long itemId,
                                                 @Valid @RequestBody CommentDto commentDto) {
         log.info("Вызван метод добавления отзыва после бронирования {}, userId={}, itemId={}", commentDto, userId,

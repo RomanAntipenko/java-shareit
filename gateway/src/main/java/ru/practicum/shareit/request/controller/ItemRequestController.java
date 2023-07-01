@@ -11,6 +11,8 @@ import ru.practicum.shareit.request.dto.ItemRequestDto;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
 
+import static ru.practicum.shareit.ConstantsForGateway.userIdHeader;
+
 @RequiredArgsConstructor
 @RestController
 @RequestMapping(path = "/requests")
@@ -20,27 +22,27 @@ public class ItemRequestController {
     private final RequestClient requestClient;
 
     @PostMapping
-    public ResponseEntity<Object> createRequest(@RequestHeader("X-Sharer-User-Id") long userId,
+    public ResponseEntity<Object> createRequest(@RequestHeader(userIdHeader) long userId,
                                                 @RequestBody @Validated ItemRequestDto itemRequestDto) {
         log.info("Создеам запрос {}, userId={}", itemRequestDto, userId);
         return requestClient.createRequest(userId, itemRequestDto);
     }
 
     @GetMapping
-    public ResponseEntity<Object> getRequestsByRequestor(@RequestHeader("X-Sharer-User-Id") long userId) {
+    public ResponseEntity<Object> getRequestsByRequestor(@RequestHeader(userIdHeader) long userId) {
         log.info("Вызван метод получения списка запросов на предмет для создателя запроса");
         return requestClient.getRequestsByRequestor(userId);
     }
 
     @GetMapping("/{requestId}")
-    public ResponseEntity<Object> getRequestByRequestId(@RequestHeader("X-Sharer-User-Id") long userId,
+    public ResponseEntity<Object> getRequestByRequestId(@RequestHeader(userIdHeader) long userId,
                                                         @PathVariable long requestId) {
         log.info("Вызван метод получения списка запросов на предмет для создателя запроса, {}", requestId);
         return requestClient.getRequestByRequestId(userId, requestId);
     }
 
     @GetMapping("/all")
-    public ResponseEntity<Object> getRequestsWithPagination(@RequestHeader("X-Sharer-User-Id") long userId,
+    public ResponseEntity<Object> getRequestsWithPagination(@RequestHeader(userIdHeader) long userId,
                                                             @PositiveOrZero @RequestParam(name = "from",
                                                                     defaultValue = "0") Integer from,
                                                             @Positive @RequestParam(name = "size",

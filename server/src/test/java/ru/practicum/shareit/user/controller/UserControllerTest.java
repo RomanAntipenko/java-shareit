@@ -46,19 +46,6 @@ class UserControllerTest {
 
     @SneakyThrows
     @Test
-    void userWithBadBehaviorTest() {
-        UserDto user = UserDto.builder()
-                .email("bla")
-                .name("user")
-                .build();
-        mockMvc.perform(post("/users")
-                        .contentType("application/json")
-                        .content(objectMapper.writeValueAsString(user)))
-                .andExpect(status().is(400));
-    }
-
-    @SneakyThrows
-    @Test
     void userPatchWithGoodBehaviorTest() {
         UserDto user = UserDto.builder()
                 .email("user@user.com")

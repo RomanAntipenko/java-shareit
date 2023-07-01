@@ -15,6 +15,8 @@ import javax.validation.Valid;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
 
+import static ru.practicum.shareit.ConstantsForGateway.userIdHeader;
+
 @RestController
 @RequestMapping("/bookings")
 @RequiredArgsConstructor
@@ -24,7 +26,7 @@ public class BookingController {
     private final BookingClient bookingClient;
 
     @GetMapping
-    public ResponseEntity<Object> getBookingsForBookers(@RequestHeader("X-Sharer-User-Id") long userId,
+    public ResponseEntity<Object> getBookingsForBookers(@RequestHeader(userIdHeader) long userId,
                                                         @RequestParam(name = "state", defaultValue = "all")
                                                         String stateParam,
                                                         @PositiveOrZero @RequestParam(name = "from", defaultValue = "0")
@@ -38,7 +40,7 @@ public class BookingController {
     }
 
     @PostMapping
-    public ResponseEntity<Object> bookItem(@RequestHeader("X-Sharer-User-Id") long userId,
+    public ResponseEntity<Object> bookItem(@RequestHeader(userIdHeader) long userId,
                                            @RequestBody @Valid BookingDto requestDto) {
         if (!requestDto.getEnd().isAfter(requestDto.getStart())) {
             log.debug("Incorrect date");
@@ -50,14 +52,14 @@ public class BookingController {
     }
 
     @GetMapping("/{bookingId}")
-    public ResponseEntity<Object> getBooking(@RequestHeader("X-Sharer-User-Id") long userId,
+    public ResponseEntity<Object> getBooking(@RequestHeader(userIdHeader) long userId,
                                              @PathVariable Long bookingId) {
         log.info("Получаем бронирование {}, userId={}", bookingId, userId);
         return bookingClient.getBooking(userId, bookingId);
     }
 
     @PatchMapping("/{bookingId}")
-    public ResponseEntity<Object> approveBooking(@RequestHeader("X-Sharer-User-Id") long userId,
+    public ResponseEntity<Object> approveBooking(@RequestHeader(userIdHeader) long userId,
                                                  @PathVariable long bookingId,
                                                  @RequestParam boolean approved) {
         log.info("Принимаем или отменяем бронирование {}, userId={}", bookingId, userId);
@@ -66,7 +68,7 @@ public class BookingController {
     }
 
     @GetMapping("/owner")
-    public ResponseEntity<Object> getBookingsForUser(@RequestHeader("X-Sharer-User-Id") long userId,
+    public ResponseEntity<Object> getBookingsForUser(@RequestHeader(userIdHeader) long userId,
                                                      @RequestParam(name = "state", defaultValue = "all")
                                                      String stateParam,
                                                      @PositiveOrZero @RequestParam(name = "from", defaultValue = "0")
